@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "AISpace.Auth.Server": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}

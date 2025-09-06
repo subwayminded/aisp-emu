@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "AISpace.Msg.Server": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
