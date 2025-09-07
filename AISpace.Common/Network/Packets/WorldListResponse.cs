@@ -14,12 +14,8 @@ public class WorldListResponse(List<WorldEntry> worlds) : IPacket<WorldListRespo
 
     public byte[] ToBytes()
     {
-        Span<byte> buffer = stackalloc byte[(int)(_length + 5)];
+        Span<byte> buffer = stackalloc byte[(int)(_length)];
         var writer = new PacketWriter(buffer);
-        writer.WriteByte(0x03);
-        writer.WriteUInt32LE(_length);
-        writer.WriteUInt16LE((ushort)PacketType.WorldListResponse);//Packet Type
-
         writer.WriteUInt32LE(0);//Result
         writer.WriteUInt32LE(1);//Count of worlds?
         writer.WriteUInt32LE(Worlds[0].ID);//World ID

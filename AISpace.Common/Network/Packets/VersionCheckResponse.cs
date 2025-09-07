@@ -2,7 +2,6 @@
 
 public class VersionCheckResponse(uint major, uint minor, uint ver) : IPacket<VersionCheckResponse>
 {
-    readonly byte _length = 18;
     readonly uint _result = 0;
 
     public static VersionCheckResponse FromBytes(ReadOnlySpan<byte> data)
@@ -12,11 +11,8 @@ public class VersionCheckResponse(uint major, uint minor, uint ver) : IPacket<Ve
 
     public byte[] ToBytes()
     {
-        Span<byte> buffer = stackalloc byte[_length + 5];
+        Span<byte> buffer = stackalloc byte[16];
         var writer = new PacketWriter(buffer);
-        writer.WriteByte(0x03);
-        writer.WriteUInt32LE(_length);          // some ushort
-        writer.WriteUInt16LE((ushort)PacketType.VersionCheckResponse); //2
         writer.WriteUInt32LE(_result); //4
         writer.WriteUInt32LE(major); //4
         writer.WriteUInt32LE(minor); //4

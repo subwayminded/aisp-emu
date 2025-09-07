@@ -2,7 +2,6 @@
 
 public class PingRequest(uint _time) : IPacket<PingRequest>
 {
-    private readonly uint _length = 6;
     public uint time = _time;
     public static PingRequest FromBytes(ReadOnlySpan<byte> data)
     {
@@ -14,11 +13,8 @@ public class PingRequest(uint _time) : IPacket<PingRequest>
 
     public byte[] ToBytes()
     {
-        Span<byte> buffer = stackalloc byte[(int)(_length + 5)];
+        Span<byte> buffer = stackalloc byte[(int)(4)];
         var writer = new PacketWriter(buffer);
-        writer.WriteByte(0x03);
-        writer.WriteUInt32LE(_length);
-        writer.WriteUInt16LE(0xC202);//Packet Type
         writer.WriteUInt32LE(time);//Result
         return writer.WrittenBytes;
     }

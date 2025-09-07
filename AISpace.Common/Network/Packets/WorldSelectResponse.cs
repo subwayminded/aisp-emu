@@ -14,11 +14,8 @@ public class WorldSelectResponse(string ipAddress, ushort port) : IPacket<WorldS
 
     public byte[] ToBytes()
     {
-        Span<byte> buffer = stackalloc byte[_length + 5];
+        Span<byte> buffer = stackalloc byte[_length];
         var writer = new PacketWriter(buffer);
-        writer.WriteByte(0x03);
-        writer.WriteUInt32LE(_length);
-        writer.WriteUInt16LE((ushort)PacketType.WorldSelectResponse);
         writer.WriteUInt32LE(0);//Result
         writer.WriteUInt32LE(1);//Count of worlds?
         writer.WriteUInt16LE(port);
