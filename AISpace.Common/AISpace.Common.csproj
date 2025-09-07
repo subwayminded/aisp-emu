@@ -13,8 +13,4 @@
     <PackageReference Include="NLog" Version="6.0.3" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Using Include="Nlog" />
-  </ItemGroup>
-
 </Project>

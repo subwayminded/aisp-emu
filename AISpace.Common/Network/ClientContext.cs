@@ -1,11 +1,15 @@
 ﻿using System.Buffers.Binary;
 using System.Net;
 using System.Net.Sockets;
+using NLog;
 
 namespace AISpace.Common.Network;
 
 public class ClientContext(Guid _Id, EndPoint _RemoteEndPoint, NetworkStream _ns, string _Version = "")
 {
+    private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+
+
     public Guid Id = _Id;
     public EndPoint RemoteEndPoint = _RemoteEndPoint;
     public NetworkStream Stream = _ns;
@@ -33,12 +37,17 @@ public class ClientContext(Guid _Id, EndPoint _RemoteEndPoint, NetworkStream _ns
     public async Task SendAsync(PacketType type, byte[] data, CancellationToken ct = default)
     {
         byte[] buffer = new byte[data.Length+7];
-        PacketWriter writer = new PacketWriter(buffer);
+        var writer = new PacketWriter(buffer);
         writer.WriteByte(0x03);
         writer.WriteUInt32LE((uint)data.Length+2);          // some ushort
         writer.WriteUInt16LE((ushort)type);//Packet Type
         writer.WriteBytes(data);
-        byte[] dataToSend = writer.Written.ToArray();
+        byte[] dataToSend = writer.WrittenBytes;
+        _logger.Info($"Sending {type}");
+        if(type == PacketType.ItemGetBaseListResponse)
+        {
+            _logger.Info($"ItemData: {BitConverter.ToString(dataToSend)}");  
+        }
         await Stream.WriteAsync(dataToSend, ct);
     }
 }

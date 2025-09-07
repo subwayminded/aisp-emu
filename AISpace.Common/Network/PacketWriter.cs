@@ -64,6 +64,25 @@ public ref struct PacketWriter
         _offset += length;
     }
 
+    public void WriteNullTerminatedAsciiString(string value, int maxLength = 100)
+    {
+        // Reserve space for string + null
+        var dest = _buffer.Slice(_offset, maxLength);
+
+        // Encode string directly into destination
+        int written = Encoding.ASCII.GetBytes(value, dest);
+
+        // Clamp so we always leave room for the null
+        if (written >= maxLength)
+            written = maxLength - 1;
+
+        // Ensure null terminator
+        dest[written] = 0;
+
+        // Advance past string + null
+        _offset += written + 1;
+    }
+
     public void WriteFixedAsciiString(string value, int length)
     {
         // Encode string as ASCII
