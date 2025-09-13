@@ -10,9 +10,10 @@ namespace AISpace.Common.Network.Packets
 
         public static VersionCheckRequest FromBytes(ReadOnlySpan<byte> data)
         {
-            uint major = BinaryPrimitives.ReadUInt32LittleEndian(data.Slice(0, 4));
-            uint minor = BinaryPrimitives.ReadUInt32LittleEndian(data.Slice(4, 4));
-            uint version = BinaryPrimitives.ReadUInt32LittleEndian(data.Slice(8, 4));
+            PacketReader reader = new(data);
+            uint major = reader.ReadUInt32LE();
+            uint minor = reader.ReadUInt32LE();
+            uint version = reader.ReadUInt32LE();
             return new VersionCheckRequest(major, minor, version);
         }
 

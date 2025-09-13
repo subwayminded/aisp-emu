@@ -7,10 +7,9 @@ public class ItemSlotInfo(uint id, uint socket)
 
     public byte[] ToBytes()
     {
-        Span<byte> buffer = stackalloc byte[8];
-        var writer = new Network.PacketWriter(buffer);
-        writer.WriteUInt32LE(Id);
-        writer.WriteUInt32LE(Socket);
-        return writer.WrittenBytes;
+        var writer = new Network.PacketWriter();
+        writer.WriteUIntLE(Id);
+        writer.WriteUIntLE(Socket);
+        return writer.ToBytes();
     }
 }

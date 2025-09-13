@@ -1,4 +1,5 @@
 ﻿using System.Buffers.Binary;
+using System.Drawing;
 using System.Text;
 
 namespace AISpace.Common.Network;
@@ -22,6 +23,18 @@ public ref struct PacketReader
         return _buffer[_offset++];
     }
 
+    public sbyte ReadSByte()
+    {
+        return (sbyte)_buffer[_offset++];
+    }
+
+    public float ReadFloat()
+    {
+        int size = sizeof(float);
+        float value = BinaryPrimitives.ReadSingleLittleEndian(_buffer.Slice(_offset, size));
+        _offset += size;
+        return value;
+    }
     public ushort ReadUInt16LE()
     {
         ushort value = BinaryPrimitives.ReadUInt16LittleEndian(_buffer.Slice(_offset, 2));
@@ -51,17 +64,11 @@ public ref struct PacketReader
 
     public string ReadNullTerminatedAscii()
     {
-        int start = _offset;
         int end = _offset;
 
-        // Find the null terminator
         while (end < _buffer.Length && _buffer[end] != 0)
             end++;
-
-        // Slice from start to end (exclusive of null)
-        var slice = _buffer.Slice(start, end - start);
-
-        // Advance past the string + null terminator (if found)
+        var slice = _buffer[_offset..end];
         _offset = end < _buffer.Length ? end + 1 : end;
 
         return Encoding.ASCII.GetString(slice);

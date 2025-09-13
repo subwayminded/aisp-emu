@@ -14,4 +14,8 @@
     <PackageReference Include="NLog" Version="6.0.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AISpace.Common\AISpace.Common.csproj" />
+  </ItemGroup>
+
 </Project>

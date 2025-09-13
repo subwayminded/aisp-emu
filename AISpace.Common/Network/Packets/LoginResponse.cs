@@ -2,6 +2,7 @@
 
 public class LoginResponse : IPacket<LoginResponse>
 {
+    readonly uint result = 0;
     public static LoginResponse FromBytes(ReadOnlySpan<byte> data)
     {
         throw new NotImplementedException();
@@ -9,9 +10,8 @@ public class LoginResponse : IPacket<LoginResponse>
 
     public byte[] ToBytes()
     {
-        Span<byte> buffer = stackalloc byte[4];
-        var writer = new PacketWriter(buffer);
-        writer.WriteUInt32LE(0);//Result
-        return writer.WrittenBytes;
+        using var writer = new PacketWriter();
+        writer.Write(result);//Result
+        return writer.ToBytes();
     }
 }

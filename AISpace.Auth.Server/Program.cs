@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using AISpace.Area.Server;
 using AISpace.Msg.Server;
 using NLog;
 
@@ -15,6 +16,8 @@ internal class Program
         authServer.Start();
         MsgServer msgServer = new(50052);
         msgServer.Start();
+        AreaServer areaServer = new(50054);
+        areaServer.Start();
         await Task.Delay(-1); // Wait forever
     }
 }

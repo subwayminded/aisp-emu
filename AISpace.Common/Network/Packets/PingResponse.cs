@@ -13,9 +13,8 @@ public class PingResponse(uint _time) : IPacket<PingResponse>
 
     public byte[] ToBytes()
     {
-        Span<byte> buffer = stackalloc byte[4];
-        var writer = new PacketWriter(buffer);
-        writer.WriteUInt32LE(time);//Result
-        return writer.WrittenBytes;
+        var writer = new PacketWriter();
+        writer.Write(time);//Result
+        return writer.ToBytes();
     }
 }

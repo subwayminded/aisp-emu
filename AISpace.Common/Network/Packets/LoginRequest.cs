@@ -1,15 +1,15 @@
 ﻿namespace AISpace.Common.Network.Packets;
 
-public class LoginRequest(uint userid, byte[] otp) : IPacket<LoginRequest>
+public class LoginRequest(uint userid, ReadOnlySpan<byte> otp) : IPacket<LoginRequest>
 {
     public uint UserID = userid;
-    public byte[] OTP = otp;
+    public byte[] OTP = otp.ToArray();
     public static LoginRequest FromBytes(ReadOnlySpan<byte> data)
     {
         PacketReader reader = new(data);
 
         uint userid = reader.ReadUInt32LE();
-        byte[] otp = reader.ReadBytes(20).ToArray();
+        ReadOnlySpan<byte> otp = reader.ReadBytes(20);
         return new LoginRequest(userid, otp);
     }
 

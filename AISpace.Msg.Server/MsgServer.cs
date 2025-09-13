@@ -1,6 +1,11 @@
-﻿using AISpace.Common.Game;
+﻿using System.Net.Sockets;
+using System.Text;
+using AISpace.Common.Game;
 using AISpace.Common.Network;
 using AISpace.Common.Network.Packets;
+using AISpace.Common.Network.Packets.Avatar;
+using AISpace.Common.Network.Packets.Channel;
+using AISpace.Common.Network.Packets.Item;
 using NLog;
 
 namespace AISpace.Msg.Server;
@@ -9,72 +14,87 @@ public class MsgServer(int port = 50052)
 {
     private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
-    private readonly TcpServer tcpServer = new("0.0.0.0", port);
+    private readonly TcpServer tcpServer = new("0.0.0.0", port, false);
 
     public async void Start()
     {
         _logger.Info("Starting Msg server");
-
-        _logger.Info("Starting TCP Server");
         tcpServer.Start();
-
-        _logger.Info("Starting Main Loop");
         await foreach (var packet in tcpServer.PacketReader.ReadAllAsync())
         {
             ClientContext Client = packet.Client;
             string ClientID = packet.Client.Id.ToString();
             var payload = packet.Data;
-            _logger.Info($"Client: Msg {((PacketType)packet.Type)}");
-            switch ((PacketType)packet.Type)
+            switch (packet.Type)
             {
-                case PacketType.PingRequest:
-                    var ping = PingRequest.FromBytes(payload);
-                    _ = Client.SendAsync(PacketType.PingResponse, ping.ToBytes());
+                case PacketType.Ping:
+                    _ = Client.SendAsync(PacketType.Ping, PingRequest.FromBytes(payload).ToBytes());
                     break;
                 case PacketType.VersionCheckRequest:
                     var req = VersionCheckRequest.FromBytes(payload);
-                    _logger.Info($"Client: {ClientID} Version: {packet.Client.Version}");
-                    var resp = new VersionCheckResponse(req.Major, req.Minor, req.Version);
-                    _ = Client.SendAsync(PacketType.VersionCheckResponse, resp.ToBytes());
+                    _ = Client.SendAsync(PacketType.VersionCheckResponse, new VersionCheckResponse(0, req.Major, req.Minor, req.Version).ToBytes());
                     break;
                 case PacketType.ItemGetBaseListRequest:
-                    var itemGetBaseListResp = new ItemGetBaseListResponse();
-                    _ = Client.SendAsync(PacketType.ItemGetBaseListResponse, itemGetBaseListResp.ToBytes());
+                    _ = Client.SendAsync(PacketType.ItemGetBaseListResponse, new ItemGetBaseListResponse().ToBytes());
                     break;
                 case PacketType.LoginRequest:
                     var loginReq = LoginRequest.FromBytes(payload);
-                    _logger.Info($"Client: {ClientID} LoginRequest UserID: {loginReq.UserID}");
-                    var loginResp = new LoginResponse();
-                    _ = Client.SendAsync(PacketType.LoginResponse, loginResp.ToBytes());
+                    var otp = Encoding.ASCII.GetString(loginReq.OTP);
+                    _logger.Info($"Client: {ClientID} LoginRequest UserID: {loginReq.UserID}, OTP: {otp}");
+                    _ = Client.SendAsync(PacketType.LoginResponse, new LoginResponse().ToBytes());
                     break;
                 case PacketType.AvatarGetDataRequest:
-                    //var avatarGetDataReq = AvatarGetDataRequest.FromBytes(payload);
-                    //_logger.Info($"Client: {ClientID} AvatarGetDataRequest AvatarID: {avatarGetDataReq.AvatarID}");
-                    //var avatarGetDataResp = new AvatarGetDataResponse(avatarGetDataReq.AvatarID);
-                    //response = avatarGetDataResp.ToBytes();
-
-                    //AvatarDataResponse
-                    
+                    //Get Character information from database
                     var DataResp = new AvatarDataResponse(0,"test", 1001011, 0, 0);
-                    DataResp.Equips.Add(new ItemSlotInfo(10100140, 0));
-                    DataResp.Equips.Add(new ItemSlotInfo(10200130, 0));
-                    DataResp.Equips.Add(new ItemSlotInfo(10100190, 0));
-                    for (int i = 3; i < 30; i++)
-                    {
-                        DataResp.Equips.Add(new ItemSlotInfo(0, 0));
-                    }
-                    byte[] avatarGetDataResp = [3, 26, 1, 0, 0, 71, 103, 0, 0, 0, 0, 116, 101, 115, 116, 0, 51, 70, 15, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 172, 29, 154, 0, 0, 0, 0, 0, 66, 164, 155, 0, 0, 0, 0, 0, 222, 29, 154, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
-                    _logger.Info($"New: {BitConverter.ToString(DataResp.ToBytes())}");
-                    _logger.Info($"Old: {BitConverter.ToString(avatarGetDataResp)}");
+                    //Get Equipment from Database.
+                    DataResp.AddEquip(10100140, 0);
+                    DataResp.AddEquip(10200130, 0);
+                    DataResp.AddEquip(10100190, 0);
                     _ = Client.SendAsync(PacketType.AvatarDataResponse, DataResp.ToBytes());
-
-
-                    var avatarGetDataResp2 = new AvatarGetDataResponse();
-                    _ = Client.SendAsync(PacketType.AvatarGetDataResponse, avatarGetDataResp2.ToBytes());
+                    var avatarGetDataResp = new AvatarGetDataResponse(0);
+                    _ = Client.SendAsync(PacketType.AvatarGetDataResponse, avatarGetDataResp.ToBytes());
                         break;
+                case PacketType.AvatarSelectRequest:
+                    var avatarRequest = AvatarSelectRequest.FromBytes(payload);
+                    var avatarResp = new AvatarSelectResponse(0);
+                    _ = Client.SendAsync(PacketType.AvatarSelectResponse, avatarResp.ToBytes());
+                    break;
+                case PacketType.ChannelListGetRequest:
+                    List<ChannelInfo> channels = [];
+                    var servInfo = new ServerInfo("127.0.0.1", 50054);
+                    channels.Add(new ChannelInfo(0, 0, 1, servInfo));
+                    var channelListResp = new ChannelListGetResponse(0, channels);
+                    _ = Client.SendAsync(PacketType.ChannelListGetResponse, channelListResp.ToBytes());
+                    break;
+                case PacketType.ChannelSelectRequest:
+                    var channelSelectReq = ChannelSelectRequest.FromBytes(payload);
+                    var channelSelectResp = new ChannelSelectResponse(0, new ServerInfo("127.0.0.1", 50054), 10990300, 10990300);
+                    _ = Client.SendAsync(PacketType.ChannelSelectResponse, channelSelectResp.ToBytes());
+                    break;
+                case PacketType.MailBoxGetDataRequest:
+                    using (PacketWriter writer = new())
+                    {
+                        writer.Write((uint)0);//Result
+                        writer.Write((uint)0); // mail
+                        _ = Client.SendAsync(PacketType.MailBoxGetDataResponse, writer.ToBytes());
+                    }
+                    break;
+                case PacketType.CircleGetDataRequest:
+                    using (PacketWriter writer = new())
+                    {
+                        writer.Write((uint)0);//Result
+                        writer.Write((uint)0); // circle_data
+                        writer.Write((uint)0); // auth_level
+                        _ = Client.SendAsync(PacketType.CircleGetDataResponse, writer.ToBytes());
+                    }
+                    break;
+                case PacketType.PostTalkRequest:
+                    var chatMessage = PostTalkRequest.FromBytes(payload);
+                    //_ = Client.SendAsync(PacketType.PostTalkRequest, chatMessage.ToBytes());
+                    _logger.Info($"User says {chatMessage.Message} | MID{chatMessage.MessageID} | DID{chatMessage.DistID} | BID{chatMessage.BalloonID}");
+                    break;
                 default:
-                        _logger.Error($"Unknown packet type: {packet.Type:X4}");
+                        _logger.Error($"Msg: Unknown packet type: {packet.RawType:X4}");
                         break;
             }
 

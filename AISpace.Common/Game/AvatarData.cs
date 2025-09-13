@@ -1,12 +1,17 @@
 ﻿namespace AISpace.Common.Game;
 
-internal class AvatarData
+public class AvatarData(uint avatar_id, CharaData chara)
 {
-    uint avatar_id;
-    CharaData chara;
-    CharaParam[] _0x0268;
-    uint _0x03a8;
-    uint _0x03ac;
-    byte _0x03b0;
-    cls_7991A0 _0x03b4;
+    public readonly uint avatar_id = avatar_id;
+    public readonly CharaData chara = chara;
+
+    public byte[] ToBytes()
+    {
+        using Network.PacketWriter writer = new();
+        writer.Write(avatar_id);
+        writer.Write(chara.ToBytes());
+        writer.Write((ushort)8);
+        writer.Write(new byte[573]);
+        return writer.ToBytes();
+    }
 }

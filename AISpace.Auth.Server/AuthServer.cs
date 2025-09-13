@@ -1,7 +1,11 @@
-﻿using AISpace.Common.DAL;
-using AISpace.Common.Game;
+﻿using System.Security.Cryptography;
+using System.Text;
+using AISpace.Common.DAL;
+using AISpace.Common.DAL.Entities;
+using AISpace.Common.DAL.Repositories;
 using AISpace.Common.Network;
 using AISpace.Common.Network.Packets;
+using AISpace.Common.Network.Packets.World;
 using NLog;
 
 namespace AISpace.Auth.Server;
@@ -11,23 +15,25 @@ internal class AuthServer
     private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
     private readonly TcpServer server;
-    private readonly UserRepository repo;
-    private readonly UserContext context;
+    private readonly UserRepository _userRepo;
+    private readonly WorldRepository _worldRepo;
+    private readonly MainContext context;
 
     public AuthServer(int port)
     {
-        server = new TcpServer("0.0.0.0", port);
-        context = new UserContext();
+        server = new TcpServer("0.0.0.0", port, false);
+        context = new MainContext();
         context.Database.EnsureCreated();
-        repo = new UserRepository(context);
+        _userRepo = new UserRepository(context);
+        _worldRepo = new WorldRepository(context);
     }
     public async void Start()
     {
         _logger.Info("Starting Auth server");
 
         _logger.Info("Starting Database connection");
-        await repo.AddUserAsync("hideki@animetoshokan.org", "password");
-
+        await _userRepo.AddUserAsync("hideki@animetoshokan.org", "password");
+        await _worldRepo.AddWorldAsync("test", "test2");
         _logger.Info("Starting TCP Server");
         server.Start();
 
@@ -37,12 +43,20 @@ internal class AuthServer
             ClientContext Client = packet.Client;
             string ClientID = packet.Client.Id.ToString();
             var payload = packet.Data;
-            switch ((PacketType)packet.Type)
+            var type = packet.Type;
+            //if (packet.Type != PacketType.Ping)
+            //    _logger.Info($"Client: Auth {packet.Type}");
+            switch (type)
             {
+                case PacketType.Ping:
+                    var ping = PingRequest.FromBytes(payload);
+                    _ = Client.SendAsync(PacketType.Ping, ping.ToBytes());
+                    break;
                 case PacketType.VersionCheckRequest:
                     var req = VersionCheckRequest.FromBytes(payload);
+                    var test = BitConverter.ToString(payload);
                     _logger.Info($"Client: {ClientID} Version: {packet.Client.Version}");
-                    var resp = new VersionCheckResponse(req.Major, req.Minor, req.Version);
+                    var resp = new VersionCheckResponse(0, req.Major, req.Minor, req.Version);
                     _ = Client.SendAsync(PacketType.VersionCheckResponse, resp.ToBytes());
                     break;
                 case PacketType.AuthenticateRequest:
@@ -55,27 +69,26 @@ internal class AuthServer
                     break;
                 case PacketType.WorldListRequest:
                     //Get Worlds from Repo
-                    var WorldList = new List<WorldEntry>
-                    {
-                        new(0, "test", "test2")
-                    };
-                    var worldListResponse = new WorldListResponse(WorldList);
+                    var worlds = await _worldRepo.GetAllWorldsAsync();
+                    var worldListResponse = new WorldListResponse(0, worlds);
                     _ = Client.SendAsync(PacketType.WorldListResponse, worldListResponse.ToBytes());
                     break;
                 case PacketType.WorldSelectRequest:
                     //Get World from Repo by ID
                     var WorldSelectReq = WorldSelectRequest.FromBytes(payload);
                     var selectedWorldID = WorldSelectReq.WorldID;
+                    byte[] seed = Guid.NewGuid().ToByteArray();
+                    byte[] hash = SHA256.HashData(seed);
+                    var sb = new StringBuilder(hash.Length * 2);
+                    foreach (byte b in hash)
+                        sb.Append(b.ToString("x2"));
+                    string opt = sb.ToString(0, 20);
                     _logger.Info($"World Selected: {selectedWorldID}");
-                    var WorldSelectResp = new WorldSelectResponse("127.0.0.1", 50052);
+                    var WorldSelectResp = new WorldSelectResponse(0, "127.0.0.1", 50052, opt);
                     _ = Client.SendAsync(PacketType.WorldSelectResponse, WorldSelectResp.ToBytes());
                     break;
-                case PacketType.PingRequest:
-                    var ping = PingRequest.FromBytes(payload);
-                    _ = Client.SendAsync(PacketType.PingResponse, ping.ToBytes());
-                    break;
                 default:
-                    _logger.Error($"Unknown packet type: {packet.Type:X4}");
+                    _logger.Error($"Unknown packet type: {packet.RawType:X4}");
                     break;
             }
         }

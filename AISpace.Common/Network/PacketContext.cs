@@ -1,3 +1,3 @@
 ﻿namespace AISpace.Common.Network;
 
-public record PacketContext(ClientContext Client, ushort Type, byte[] Data);
+public record PacketContext(ClientContext Client, PacketType Type, byte[] Data, ushort RawType);
