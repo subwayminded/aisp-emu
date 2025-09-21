@@ -2,7 +2,7 @@
 
 namespace AISpace.Common.DAL.Repositories;
 
-internal interface IWorldRepository
+public interface IWorldRepository
 {
     Task AddWorldAsync(string name, string description);
     Task<World?> GetWorldByIDAsync(int id);

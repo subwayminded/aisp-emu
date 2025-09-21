@@ -4,5 +4,6 @@ public class UserSession
 {
     public int Id { get; set; }           // Primary key
     public uint UserID { get; set; }
+    public User User { get; set; } = null!;
     public string OTP { get; set; } = string.Empty;
 }

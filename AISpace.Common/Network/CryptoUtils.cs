@@ -1,10 +1,21 @@
 ﻿using System.Security.Cryptography;
+using System.Text;
 using Org.BouncyCastle.Math;
 
 namespace AISpace.Common.Network;
 
-internal class CryptoUtils
+public class CryptoUtils
 {
+    public static string GenerateOTP()
+    {
+        byte[] seed = Guid.NewGuid().ToByteArray();
+        byte[] hash = SHA256.HashData(seed);
+        var sb = new StringBuilder(hash.Length * 2);
+        foreach (byte b in hash)
+            sb.Append(b.ToString("x2"));
+        string opt = sb.ToString(0, 20);
+        return opt;
+    }
     public static byte[] CreateKey(int size, BigInteger maxVal)
     {
         byte[] keyData = new byte[size];
@@ -33,5 +44,35 @@ internal class CryptoUtils
         Array.Reverse(result);
 
         return result;
+    }
+
+    public static byte[] CreateCamelliaKey(byte[] buffer)
+    {
+        byte[] nLength = new byte[16];
+
+        Array.Copy(buffer, nLength, 16);
+        Array.Reverse(nLength);
+        var n = new BigInteger(1, nLength.Reverse().ToArray());
+        var key = CryptoUtils.CreateKey(16, n);
+
+
+
+        var camelliaInt = new BigInteger(1, key.Reverse().ToArray());
+        BigInteger E = new BigInteger("65537"); // RSA e
+        var encS2C = camelliaInt.ModPow(E, n);
+
+        byte[] camelliaKey = ToFixedLe(encS2C, 16);
+        return camelliaKey;
+    }
+
+    // Helper: encode BigInteger -> fixed-size LE
+    private static byte[] ToFixedLe(BigInteger bi, int size)
+    {
+        var be = bi.ToByteArrayUnsigned(); // big-endian, no sign
+        var le = new byte[size];
+        int copy = Math.Min(be.Length, size);
+        for (int i = 0; i < copy; i++)
+            le[i] = be[be.Length - 1 - i]; // reverse
+        return le;
     }
 }

@@ -1,4 +1,5 @@
-﻿using AISpace.Common.DAL.Entities;
+﻿using System.Numerics;
+using AISpace.Common.DAL.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace AISpace.Common.DAL;
@@ -7,9 +8,8 @@ public class MainContext : DbContext
 {
     public DbSet<User> Users { get; set; }
     public DbSet<UserSession> UserSessions { get; set; }
-    public DbSet<Channel> Channels { get; set; }
+    public DbSet<GameChannel> Channels { get; set; }
     public DbSet<ServerInformation> Servers { get; set; }
-
     public DbSet<World> Worlds { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
@@ -17,9 +17,16 @@ public class MainContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Equip>()
+        modelBuilder.Entity<Equipment>()
                     .HasOne(e => e.Chara)
                     .WithMany(c => c.Equips)
-                    .HasForeignKey(e => e.ChararId);
+                    .HasForeignKey(e => e.CharaId);
+
+        modelBuilder.Entity<UserSession>(b =>
+        {
+            b.HasKey(x => x.Id);
+            b.HasIndex(x => x.UserID);
+            b.HasOne<User>().WithMany().HasForeignKey(x => x.UserID);
+        });
     }
 }

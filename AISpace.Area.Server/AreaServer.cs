@@ -3,13 +3,8 @@ using System.Numerics;
 using AISpace.Common.Game;
 using AISpace.Common.Network;
 using AISpace.Common.Network.Packets;
-using AISpace.Common.Network.Packets.Avatar;
-using AISpace.Common.Network.Packets.Emotion;
-using AISpace.Common.Network.Packets.Furniture;
-using AISpace.Common.Network.Packets.Item;
-using AISpace.Common.Network.Packets.Robo;
-using AISpace.Common.Network.Packets.Ucc;
-using Microsoft.EntityFrameworkCore.Query.Internal;
+using AISpace.Common.Network.Packets.Area;
+using AISpace.Common.Network.Packets.Common;
 using NLog;
 
 namespace AISpace.Area.Server;
@@ -18,7 +13,7 @@ public class AreaServer(int port = 50054)
 {
     private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
-    private readonly TcpServer tcpServer = new("0.0.0.0", port, false);
+    private readonly TcpListenerService tcpServer = new("0.0.0.0", port, false);
 
     public async void Start()
     {
@@ -26,7 +21,7 @@ public class AreaServer(int port = 50054)
         tcpServer.Start();
         await foreach (var packet in tcpServer.PacketReader.ReadAllAsync())
         {
-            ClientContext Client = packet.Client;
+            ClientConnection Client = packet.Client;
             string ClientID = packet.Client.Id.ToString();
             var payload = packet.Data;
             //if(packet.Type != PacketType.Ping)
@@ -67,7 +62,7 @@ public class AreaServer(int port = 50054)
                         var notifyData = new AvatarNotifyData(0, avatarData);
                         await Task.Delay(1000);
 
-                        var moveData = new MoveData(new Vector3(-227.392f, -0.043f, -1418.097f), -119, 0);
+                        var moveData = new MovementData(-227.392f, -0.043f, -1418.097f, -119, 0);
                         var moveNotify = new AvatarNotifyMove(24, moveData);
                         _ = Client.SendAsync(PacketType.AvatarNotifyMove, moveNotify.ToBytes());
 
@@ -174,7 +169,7 @@ public class AreaServer(int port = 50054)
                     _logger.Info($"AvatarMove: [{string.Join(", ", payload)}]");
                     var md1 = am.Moves[0];
                     var md1p = md1.Position;
-                    _logger.Info($"result: {am.Result} X{md1p.X:0.000} Y{md1p.Y:0.000} Z{md1p.Z:0.000} Yaw{md1.yaw:000} D{md1.Animation:0}");
+                    _logger.Info($"result: {am.Result} X{md1p.X:0.000} Y{md1p.Y:0.000} Z{md1p.Z:0.000} Yaw{md1.Rotation:000} D{md1.Animation:0}");
                     break;
                 default:
                     _logger.Error($"Area: Unknown packet type: {packet.RawType:X4}");

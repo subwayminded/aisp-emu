@@ -30,19 +30,18 @@ public ref struct PacketReader
 
     public float ReadFloat()
     {
-        int size = sizeof(float);
-        float value = BinaryPrimitives.ReadSingleLittleEndian(_buffer.Slice(_offset, size));
-        _offset += size;
+        float value = BinaryPrimitives.ReadSingleLittleEndian(_buffer.Slice(_offset, 4));
+        _offset += 4;
         return value;
     }
-    public ushort ReadUInt16LE()
+    public ushort ReadUShort()
     {
         ushort value = BinaryPrimitives.ReadUInt16LittleEndian(_buffer.Slice(_offset, 2));
         _offset += 2;
         return value;
     }
 
-    public uint ReadUInt32LE()
+    public uint ReadUInt()
     {
         uint value = BinaryPrimitives.ReadUInt32LittleEndian(_buffer.Slice(_offset, 4));
         _offset += 4;
@@ -56,21 +55,23 @@ public ref struct PacketReader
         return slice;
     }
 
-    public string ReadUtf8String(int length)
+    public string ReadFixedString(int length, string encoderName = "UTF8")
     {
+        var encoder = Encoding.GetEncoding(encoderName);
         var slice = ReadBytes(length);
-        return Encoding.UTF8.GetString(slice);
+        return encoder.GetString(slice);
     }
 
-    public string ReadNullTerminatedAscii()
+    public string ReadString(string encoderName = "ASCII")
     {
-        int end = _offset;
+        var encoder = Encoding.GetEncoding(encoderName);
+        var slice = _buffer[_offset..];
+        int end = slice.IndexOf((byte)0x00);
+        if (end < 0) 
+            end = slice.Length;
 
-        while (end < _buffer.Length && _buffer[end] != 0)
-            end++;
-        var slice = _buffer[_offset..end];
-        _offset = end < _buffer.Length ? end + 1 : end;
+        _offset += end < slice.Length ? end + 1 : end;
 
-        return Encoding.ASCII.GetString(slice);
+        return encoder.GetString(slice[..end]);
     }
 }

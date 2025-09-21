@@ -3,9 +3,8 @@ using System.Text;
 using AISpace.Common.Game;
 using AISpace.Common.Network;
 using AISpace.Common.Network.Packets;
-using AISpace.Common.Network.Packets.Avatar;
-using AISpace.Common.Network.Packets.Channel;
-using AISpace.Common.Network.Packets.Item;
+using AISpace.Common.Network.Packets.Common;
+using AISpace.Common.Network.Packets.Msg;
 using NLog;
 
 namespace AISpace.Msg.Server;
@@ -14,7 +13,7 @@ public class MsgServer(int port = 50052)
 {
     private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
-    private readonly TcpServer tcpServer = new("0.0.0.0", port, false);
+    private readonly TcpListenerService tcpServer = new("0.0.0.0", port, false);
 
     public async void Start()
     {
@@ -22,7 +21,7 @@ public class MsgServer(int port = 50052)
         tcpServer.Start();
         await foreach (var packet in tcpServer.PacketReader.ReadAllAsync())
         {
-            ClientContext Client = packet.Client;
+            ClientConnection Client = packet.Client;
             string ClientID = packet.Client.Id.ToString();
             var payload = packet.Data;
             switch (packet.Type)

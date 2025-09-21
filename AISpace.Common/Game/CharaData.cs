@@ -7,7 +7,7 @@ public class CharaData(uint chara_id, uint character_id, string name)
     public uint character_id = character_id;
     public string name = name;
     public CharaVisual visual = new(1, 1, 1, 1, 2, 0, 0);
-    public MoveData moveData = new(new System.Numerics.Vector3(0, 0, 0), 0, 0);
+    public MovementData moveData = new(0, 0, 0, 0, 0);
     //X-4069.790 Y-0.043 Z-2813.927
     public List<Game.ItemSlotInfo> Equips = new(30);
 

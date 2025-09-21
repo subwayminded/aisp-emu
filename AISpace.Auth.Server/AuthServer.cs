@@ -1,11 +1,8 @@
-﻿using System.Security.Cryptography;
-using System.Text;
+﻿using System.Threading.Channels;
 using AISpace.Common.DAL;
-using AISpace.Common.DAL.Entities;
 using AISpace.Common.DAL.Repositories;
 using AISpace.Common.Network;
-using AISpace.Common.Network.Packets;
-using AISpace.Common.Network.Packets.World;
+using Microsoft.Extensions.DependencyInjection;
 using NLog;
 
 namespace AISpace.Auth.Server;
@@ -14,20 +11,25 @@ internal class AuthServer
 {
     private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
-    private readonly TcpServer server;
+    private readonly TcpListenerService server;
+    private readonly PacketDispatcher _dispatcher;
     private readonly UserRepository _userRepo;
     private readonly WorldRepository _worldRepo;
     private readonly MainContext context;
+    private readonly ChannelReader<Packet> _packetChannel;
+    private readonly MessageDomain domain = MessageDomain.Auth;
 
-    public AuthServer(int port)
+    public AuthServer(IServiceProvider services, int port, Channel<Packet> packetChannel)
     {
-        server = new TcpServer("0.0.0.0", port, false);
+        _dispatcher = services.GetRequiredService<PacketDispatcher>();
+        _packetChannel = packetChannel.Reader;
+        //server = new TcpListenerService("0.0.0.0", port, false);
+
+        //Setup DB
         context = new MainContext();
         context.Database.EnsureCreated();
-        _userRepo = new UserRepository(context);
-        _worldRepo = new WorldRepository(context);
     }
-    public async void Start()
+    public async void Start(CancellationToken ct = default)
     {
         _logger.Info("Starting Auth server");
 
@@ -35,68 +37,19 @@ internal class AuthServer
         await _userRepo.AddUserAsync("hideki@animetoshokan.org", "password");
         await _worldRepo.AddWorldAsync("test", "test2");
         _logger.Info("Starting TCP Server");
-        server.Start();
+        await server.StartAsync(ct);
 
         _logger.Info("Starting Main Loop");
-        await foreach (var packet in server.PacketReader.ReadAllAsync())
+        await foreach (var packet in _packetChannel.ReadAllAsync())
         {
-            ClientContext Client = packet.Client;
+            ClientConnection connection = packet.Client;
             string ClientID = packet.Client.Id.ToString();
             var payload = packet.Data;
-            var type = packet.Type;
-            if (packet.Type != PacketType.Ping)
-                _logger.Info($"Client: Auth {packet.Type}");
-            switch (type)
-            {
-                case PacketType.Ping:
-                    var ping = PingRequest.FromBytes(payload);
-                    _ = Client.SendAsync(PacketType.Ping, ping.ToBytes());
-                    break;
-                case PacketType.Auth_VersionCheckRequest:
-                    var req = VersionCheckRequest.FromBytes(payload);
-                    _logger.Info($"Client: {ClientID} Version: {packet.Client.Version}");
-                    var resp = new VersionCheckResponse(0, req.Major, req.Minor, req.Version);
-                    _ = Client.SendAsync(PacketType.Auth_VersionCheckResponse, resp.ToBytes());
-                    break;
-                case PacketType.AuthenticateRequest:
-                    var AuthReq = AuthenticateRequest.FromBytes(payload);
-                    _logger.Info($"Username: '{AuthReq.Username}', Password: {AuthReq.Password}");
-                    //bool valid = await repo.ValidateCredentialsAsync(req.Username, req.Password);
-                    uint userID = 31874;
-                    var AuthResp = new AuthenticateResponse(userID);
-                    _ = Client.SendAsync(PacketType.AuthenticateResponse, AuthResp.ToBytes());
-                    break;
-                case PacketType.Auth_WorldListRequest:
-                    //Get Worlds from Repo
-                    var worlds = await _worldRepo.GetAllWorldsAsync();
-                    var worldListResponse = new WorldListResponse(0, worlds);
-                    _ = Client.SendAsync(PacketType.Auth_WorldListResponse, worldListResponse.ToBytes());
-                    break;
-                case PacketType.Auth_WorldSelectRequest:
-                    //Get World from Repo by ID
-                    var WorldSelectReq = WorldSelectRequest.FromBytes(payload);
-                    var selectedWorldID = WorldSelectReq.WorldID;
-                    string otp = GenerateOTP();
-                    //Need to insert the otp into UserSessions
-                    _logger.Info($"World Selected: {selectedWorldID}");
-                    var WorldSelectResp = new WorldSelectResponse(0, "127.0.0.1", 50052, otp);
-                    _ = Client.SendAsync(PacketType.Auth_WorldSelectResponse, WorldSelectResp.ToBytes());
-                    break;
-                default:
-                    _logger.Error($"Unknown packet type: {packet.RawType:X4}");
-                    break;
-            }
+            var packetType = packet.Type;
+            await _dispatcher.DispatchAsync(domain, packetType, payload, connection);
+
         }
     }
 
-    private static string GenerateOTP()
-    {
-        byte[] seed = Guid.NewGuid().ToByteArray();
-        byte[] hash = SHA256.HashData(seed);
-        var sb = new StringBuilder(hash.Length * 2);
-        foreach (byte b in hash)
-            sb.Append(b.ToString("x2"));
-        string opt = sb.ToString(0, 20);
-        return opt;
-    }
+
 }
