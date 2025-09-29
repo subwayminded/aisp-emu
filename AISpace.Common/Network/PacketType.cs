@@ -6,11 +6,11 @@ public class PacketMetadataAttribute : Attribute
     public PacketMetadataAttribute(string decompiledName) => DecompiledName = decompiledName;
 }
 
-public enum PacketType: ushort
+public enum PacketType : ushort
 {
     //Auth
-    Auth_VersionCheckRequest = 0x62BC, // 25276 CProtoAuth_client::send_check_version
-    Auth_VersionCheckResponse = 0xB6B4, // 46772 CProtoAuth_client::recv_check_version_r
+    VersionCheckRequest = 0x62BC, // 25276 CProtoAuth_client::send_check_version
+    VersionCheckResponse = 0xB6B4, // 46772 CProtoAuth_client::recv_check_version_r
     Auth_WorldListRequest = 0x6676, // 26230 CProtoAuth_client::send_get_worldlist
     Auth_WorldListResponse = 0xEE7E, // 61054 CProtoAuth_client::recv_get_worldlist_r
     Auth_WorldSelectRequest = 0x7FE7, // 32743 CProtoAuth_client::send_select_world
@@ -45,7 +45,7 @@ public enum PacketType: ushort
     AreasvLeaveRequest = 0xF7B9, // 63417
     AreasvLeaveResponse = 0xE31D, // 58141
 
-    
+
     AvatarDestroyRequest = 0x765A, // 30298
     AvatarGetCreateInfoRequest = 0x04F6, // 1270
     AvatarGetCreateInfoResponse = 0xA5AD, // 42413

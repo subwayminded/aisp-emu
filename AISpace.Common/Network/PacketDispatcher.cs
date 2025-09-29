@@ -4,7 +4,7 @@ public class PacketDispatcher
 {
     private readonly Dictionary<(MessageDomain, PacketType), IPacketHandler> _handlers;
 
-    public PacketDispatcher(IEnumerable<IPacketHandler> allHandlers, MessageDomain activeDomains)
+    public PacketDispatcher(IEnumerable<IPacketHandler> allHandlers)
     {
         _handlers = [];
 
@@ -12,8 +12,9 @@ public class PacketDispatcher
         {
             foreach (MessageDomain domain in Enum.GetValues<MessageDomain>())
             {
-                if (activeDomains.HasFlag(domain) && handler.Domains.HasFlag(domain))
+                if (handler.Domains.HasFlag(domain))
                 {
+
                     _handlers[(domain, handler.RequestType)] = handler;
                 }
             }

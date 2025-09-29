@@ -1,6 +1,4 @@
-﻿using System.Buffers.Binary;
-
-namespace AISpace.Common.Network.Packets.Common
+﻿namespace AISpace.Common.Network.Packets.Common
 {
     public class VersionCheckRequest(uint Major, uint Minor, uint Version) : IPacket<VersionCheckRequest>
     {

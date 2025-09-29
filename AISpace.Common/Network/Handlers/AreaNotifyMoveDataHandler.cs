@@ -1,6 +1,3 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using AISpace.Common.Network.Packets.Area;
 using NLog;
 
@@ -22,7 +19,7 @@ public class AreaNotifyMoveDataHandler : IPacketHandler
         var payloadBytes = payload.ToArray();
         _logger.Info($"AvatarMove: [{string.Join(", ", payloadBytes)}]");
         var movement = avatarMove.Moves[0];
-        _logger.Info($"result: {avatarMove.Result} X{movement.X:0.000} Y{movement.Y:0.000} Z{movement.Z:0.000} Yaw{movement.Rotation:000} D{(byte)movement.Animation:0}");
+        _logger.Info($"X{movement.X:0.000} Y{movement.Y:0.000} Z{movement.Z:0.000} Yaw{movement.Rotation:000} D{(byte)movement.Animation:0}");
         return Task.CompletedTask;
     }
 }

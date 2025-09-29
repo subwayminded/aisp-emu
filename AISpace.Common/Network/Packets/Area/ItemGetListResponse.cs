@@ -1,8 +1,7 @@
 ﻿namespace AISpace.Common.Network.Packets.Area;
 
-public class ItemGetListResponse(int Result) : IPacket<ItemGetListResponse>
+public class ItemGetListResponse(uint Result) : IPacket<ItemGetListResponse>
 {
-    int result = Result;
     public static ItemGetListResponse FromBytes(ReadOnlySpan<byte> data)
     {
         throw new NotImplementedException();
@@ -11,7 +10,7 @@ public class ItemGetListResponse(int Result) : IPacket<ItemGetListResponse>
     public byte[] ToBytes()
     {
         var writer = new PacketWriter();
-        writer.Write((uint)result);//Result
+        writer.Write(Result);
         return writer.ToBytes();
     }
 }

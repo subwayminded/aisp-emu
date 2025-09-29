@@ -1,62 +1,64 @@
-﻿using System.Threading.Channels;
-using AISpace.Common.DAL;
-using AISpace.Common.DAL.Repositories;
-using AISpace.Common.Network;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using NLog;
-using Scrutor;
+﻿namespace AISpace.Server;
 
-namespace AISpace.Auth.Server;
-
-internal class AuthServer
+public class AuthServer : BackgroundService
 {
-    ILogger<AuthServer> _logger;
-
-    private readonly TcpListenerService<AuthChannel> _listener;
+    private readonly ILogger<AuthServer> _logger;
     private readonly MainContext _db;
     private readonly PacketDispatcher _dispatcher;
-    private readonly UserRepository _userRepo;
-    private readonly WorldRepository _worldRepo;
-    private readonly ChannelReader<Packet> _packetChannel;
+    private readonly IUserRepository _userRepo;
+    private readonly IWorldRepository _worldRepo;
+    private readonly ChannelReader<Packet> _channel;
     public readonly MessageDomain ActiveDomain = MessageDomain.Auth;
 
-    public AuthServer(ILogger<AuthServer> logger, 
-        TcpListenerService<AuthChannel> listener, 
-        MainContext db, 
-        UserRepository userRepo, 
-        WorldRepository worldRepo, 
+    private readonly TimeSpan _tickRate = TimeSpan.FromMilliseconds(1000.0 / 60.0);
+
+    public AuthServer(ILogger<AuthServer> logger,
+        MainContext db,
+        IUserRepository userRepo,
+        AuthChannel channel,
+        IWorldRepository worldRepo,
         PacketDispatcher dispatcher)
     {
         _logger = logger;
         _db = db;
-        _listener = listener;
-        _packetChannel = _listener.PacketReader;
+        _channel = channel.Channel;
         _dispatcher = dispatcher;
         _userRepo = userRepo;
         _worldRepo = worldRepo;
 
         //Setup DB
-        _db.Database.EnsureCreated();
+        //_db.Database.EnsureCreated();
     }
-    public async void Start(CancellationToken ct = default)
+
+    protected override async Task ExecuteAsync(CancellationToken ct)
     {
-        _logger.LogInformation("Starting Auth server");
+        _logger.LogInformation("Starting {domain} server", ActiveDomain);
+        var packetLoop = RunPacketLoop(ct);
+        var gameLoop = RunGameLoop(ct);
 
-        _logger.LogInformation("Starting Database connection");
-        await _userRepo.AddUserAsync("hideki@animetoshokan.org", "password");
-        await _worldRepo.AddWorldAsync("test", "test2");
+        await Task.WhenAll(packetLoop, gameLoop);
+    }
 
-        
-        _logger.LogInformation("Starting TCP Server");
-        await _listener.StartAsync(ct);
-
-        _logger.LogInformation("Starting Main Loop");
-        await foreach (var packet in _packetChannel.ReadAllAsync(ct))
+    private async Task RunPacketLoop(CancellationToken ct)
+    {
+        await foreach (var packet in _channel.ReadAllAsync(ct))
         {
+            _logger.LogInformation("Dispatching {domain} packet of type {type}", ActiveDomain, packet.Type);
             await _dispatcher.DispatchAsync(ActiveDomain, packet.Type, packet.Data, packet.Client, ct);
         }
     }
 
-
+    private async Task RunGameLoop(CancellationToken ct)
+    {
+        var sw = new PeriodicTimer(_tickRate);
+        while (await sw.WaitForNextTickAsync(ct))
+        {
+            // Advance game simulation
+            UpdateWorld();
+        }
+    }
+    private void UpdateWorld()
+    {
+        // game state update logic goes here
+    }
 }

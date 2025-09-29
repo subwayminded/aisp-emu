@@ -1,6 +1,3 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using AISpace.Common.Game;
 using AISpace.Common.Network.Packets.Area;
 using NLog;
@@ -19,7 +16,6 @@ public class AreaAvatarGetDataHandler : IPacketHandler
 
     public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
     {
-        _logger.Info(BitConverter.ToString(payload.Span));
         var charaData = new CharaData(23, 23, "test");
         charaData.AddEquip(10100140, 0);
         charaData.AddEquip(10200130, 0);

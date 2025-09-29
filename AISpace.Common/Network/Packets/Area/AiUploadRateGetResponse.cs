@@ -1,6 +1,6 @@
 ﻿namespace AISpace.Common.Network.Packets.Area;
 
-public class AiUploadRateGetResponse : IPacket<AiUploadRateGetResponse>
+public class AiUploadRateGetResponse(uint Result = 1) : IPacket<AiUploadRateGetResponse>
 {
     public static AiUploadRateGetResponse FromBytes(ReadOnlySpan<byte> data)
     {
@@ -9,8 +9,8 @@ public class AiUploadRateGetResponse : IPacket<AiUploadRateGetResponse>
 
     public byte[] ToBytes()
     {
-        var writer = new PacketWriter();
-        writer.Write((uint)1);//Result
+        using var writer = new PacketWriter();
+        writer.Write(Result);
         return writer.ToBytes();
     }
 }

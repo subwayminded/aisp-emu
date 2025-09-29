@@ -11,10 +11,10 @@ public class ChannelInfo(uint channelID, uint _0x0004, uint _0x0008, ServerInfo 
     public byte[] ToBytes()
     {
         var writer = new Network.PacketWriter();
-        writer.WriteUIntLE(channelID);
-        writer.WriteUIntLE(_0x0004);
-        writer.WriteUIntLE(_0x0008);
-        writer.WriteBytes(serverInfo.ToBytes());
+        writer.Write(channelID);
+        writer.Write(_0x0004);
+        writer.Write(_0x0008);
+        writer.Write(serverInfo.ToBytes());
         return writer.ToBytes();
     }
 }

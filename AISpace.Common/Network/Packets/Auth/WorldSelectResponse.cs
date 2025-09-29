@@ -1,14 +1,11 @@
-﻿using System.Security.Cryptography;
-using System.Text;
-
-namespace AISpace.Common.Network.Packets.Auth;
+﻿namespace AISpace.Common.Network.Packets.Auth;
 
 public class WorldSelectResponse(uint result, string ipAddress, ushort port, string otp) : IPacket<WorldSelectResponse>
 {
-    uint count=1;
-    public string ipAddress = ipAddress;
-    public ushort port = port;
-    public string otp = otp;
+    uint worldCount = 1;
+    public string IpAddress = ipAddress;
+    public ushort Port = port;
+    public string OTP = otp;
 
     public static WorldSelectResponse FromBytes(ReadOnlySpan<byte> data)
     {
@@ -18,10 +15,11 @@ public class WorldSelectResponse(uint result, string ipAddress, ushort port, str
     public byte[] ToBytes()
     {
         using var writer = new PacketWriter();
-        writer.Write(result, count);//Result and World count
-        writer.Write(port);
-        writer.WriteFixedAsciiString(ipAddress, 65);
-        writer.WriteFixedAsciiString(otp, 20);
+        writer.Write(result);//Result and World count
+        writer.Write(worldCount);
+        writer.Write(Port);
+        writer.WriteFixedAsciiString(IpAddress, 65);
+        writer.WriteFixedAsciiString(OTP, 20);
         return writer.ToBytes();
     }
 }

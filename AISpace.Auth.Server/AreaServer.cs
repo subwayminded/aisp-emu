@@ -1,29 +1,21 @@
-using System.Collections.Generic;
-using System.Threading.Channels;
-using AISpace.Common.DAL;
-using AISpace.Common.DAL.Repositories;
-using AISpace.Common.Network;
-using AISpace.Common.Network.Handlers;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using NLog;
+namespace AISpace.Server;
 
-namespace AISpace.Msg.Server;
-
-public class MsgServer : BackgroundService
+public class AreaServer : BackgroundService
 {
-    private readonly ILogger<MsgServer> _logger;
+    private readonly ILogger<AreaServer> _logger;
     private readonly MainContext _db;
     private readonly PacketDispatcher _dispatcher;
     private readonly IUserRepository _userRepo;
     private readonly IWorldRepository _worldRepo;
     private readonly ChannelReader<Packet> _channel;
-    public readonly MessageDomain ActiveDomain = MessageDomain.Msg;
+    public readonly MessageDomain ActiveDomain = MessageDomain.Area;
 
-    public MsgServer(ILogger<MsgServer> logger,
+    private readonly TimeSpan _tickRate = TimeSpan.FromMilliseconds(1000.0 / 60.0);
+
+    public AreaServer(ILogger<AreaServer> logger,
         MainContext db,
         IUserRepository userRepo,
-        MsgChannel channel,
+        AreaChannel channel,
         IWorldRepository worldRepo,
         PacketDispatcher dispatcher)
     {
@@ -41,10 +33,32 @@ public class MsgServer : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken ct)
     {
         _logger.LogInformation("Starting {domain} server", ActiveDomain);
+        var packetLoop = RunPacketLoop(ct);
+        var gameLoop = RunGameLoop(ct);
+
+        await Task.WhenAll(packetLoop, gameLoop);
+    }
+
+    private async Task RunPacketLoop(CancellationToken ct)
+    {
         await foreach (var packet in _channel.ReadAllAsync(ct))
         {
             _logger.LogInformation("Dispatching {domain} packet of type {type}", ActiveDomain, packet.Type);
             await _dispatcher.DispatchAsync(ActiveDomain, packet.Type, packet.Data, packet.Client, ct);
         }
+    }
+
+    private async Task RunGameLoop(CancellationToken ct)
+    {
+        var sw = new PeriodicTimer(_tickRate);
+        while (await sw.WaitForNextTickAsync(ct))
+        {
+            // Advance game simulation
+            UpdateWorld();
+        }
+    }
+    private void UpdateWorld()
+    {
+        // game state update logic goes here
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System.Buffers.Binary;
-using System.Drawing;
 using System.Text;
 
 namespace AISpace.Common.Network;
@@ -67,7 +66,7 @@ public ref struct PacketReader
         var encoder = Encoding.GetEncoding(encoderName);
         var slice = _buffer[_offset..];
         int end = slice.IndexOf((byte)0x00);
-        if (end < 0) 
+        if (end < 0)
             end = slice.Length;
 
         _offset += end < slice.Length ? end + 1 : end;

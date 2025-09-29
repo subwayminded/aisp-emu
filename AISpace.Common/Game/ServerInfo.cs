@@ -8,8 +8,8 @@ public class ServerInfo(string ip, ushort port)
     public byte[] ToBytes()
     {
         var writer = new Network.PacketWriter();
-        writer.WriteUShortLE(Port);
-        writer.WriteFixedAsciiString(IP, 65);
+        writer.Write(Port);
+        writer.WriteFixedString(IP, 65, "ASCII");
         return writer.ToBytes();
     }
 }

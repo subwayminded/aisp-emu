@@ -7,40 +7,32 @@ using Microsoft.Extensions.Logging;
 
 namespace AISpace.Common.Network;
 
-public class AuthChannel
-{
-    public Channel<Packet> Channel { get; } = System.Threading.Channels.Channel.CreateUnbounded<Packet>();
-}
+public record AuthChannel(Channel<Packet> Channel);
+public record MsgChannel(Channel<Packet> Channel);
+public record AreaChannel(Channel<Packet> Channel);
 
-public class AreaChannel
+public class TcpListenerService : BackgroundService
 {
-    public Channel<Packet> Channel { get; } = System.Threading.Channels.Channel.CreateUnbounded<Packet>();
-}
-
-public class MsgChannel
-{
-    public Channel<Packet> Channel { get; } = System.Threading.Channels.Channel.CreateUnbounded<Packet>();
-}
-
-
-public sealed class TCPServerConfig
-{
-    public string BindAddress { get; set; } = "0.0.0.0";
-    public int Port { get; set; } = 5005;
-}
-public class TcpListenerService<TChannel>(ILogger<TcpListenerService<TChannel>> logger,
-                              Channel<Packet> channel,
-                              TCPServerConfig config) : BackgroundService
-{
-    private readonly ILogger<TcpListenerService<TChannel>> _logger = logger;
-    private readonly TcpListener _tcpListener = new(System.Net.IPAddress.Parse(config.BindAddress), config.Port);
-    private readonly Channel<Packet> _channel = channel; //Channel.CreateBounded<Packet>(1000);
+    private readonly ILogger<TcpListenerService> _logger;
+    private readonly TcpListener _tcpListener;
+    private readonly Channel<Packet> _channel;
     private readonly CancellationTokenSource _cts = new();
     private readonly bool Encrypted = false;
 
     public ChannelReader<Packet> PacketReader => _channel.Reader;
 
     private readonly ConcurrentDictionary<Guid, ClientConnection> _clients = new();
+    private readonly string name;
+
+    public TcpListenerService(ILogger<TcpListenerService> logger,
+            Channel<Packet> channel, string Name,
+            int port)
+    {
+        _logger = logger;
+        name = Name;
+        _tcpListener = new(System.Net.IPAddress.Parse("0.0.0.0"), port);
+        _channel = channel;
+    }
 
     public override Task StopAsync(CancellationToken cancellationToken)
     {
@@ -52,7 +44,7 @@ public class TcpListenerService<TChannel>(ILogger<TcpListenerService<TChannel>> 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _tcpListener.Start();
-        _logger.LogInformation("Server started on {LocalEP}", _tcpListener.LocalEndpoint);
+        _logger.LogInformation("Server {name} started on {LocalEP}", name, _tcpListener.LocalEndpoint);
 
 
         while (!_cts.Token.IsCancellationRequested)
@@ -97,7 +89,7 @@ public class TcpListenerService<TChannel>(ILogger<TcpListenerService<TChannel>> 
 
     private async Task HandleClientAsync(ClientConnection context)
     {
-        _logger.LogInformation("Handling new client {Id}", context.Id);
+        _logger.LogInformation("{name} Handling new client {Id}", name, context.Id);
         using var stream = context.Stream;
         var buffer = new byte[4096];
 
@@ -105,13 +97,16 @@ public class TcpListenerService<TChannel>(ILogger<TcpListenerService<TChannel>> 
         {
             while (!_cts.Token.IsCancellationRequested)
             {
-                // read length (1 byte)
                 int read = await stream.ReadAsync(buffer.AsMemory(0, 1), _cts.Token);
 
-                if (read == 0) break;
+                //If data is empty then break
+                if (read == 0)
+                    break;
+
 
                 int packetLength = buffer[0];
-                if (packetLength < 2) continue;
+                if (packetLength < 2)
+                    continue;
 
                 await ReadExactAsync(stream, buffer.AsMemory(0, 2), _cts.Token);
                 ushort typeShort = BinaryPrimitives.ReadUInt16LittleEndian(buffer.AsSpan(0, 2));
@@ -123,6 +118,7 @@ public class TcpListenerService<TChannel>(ILogger<TcpListenerService<TChannel>> 
                 if (payloadLength > 0)
                     await ReadExactAsync(stream, payload, _cts.Token);
 
+                _logger.LogInformation("{name} Writing message to Channel {Id}", name, context.Id);
                 //Need to check if PacketType is supported. If not send a logout?
                 _channel.Writer.TryWrite(new Packet(context, type, payload, typeShort));
             }

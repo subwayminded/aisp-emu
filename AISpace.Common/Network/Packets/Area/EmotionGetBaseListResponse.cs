@@ -1,6 +1,6 @@
 ﻿namespace AISpace.Common.Network.Packets.Area;
 
-public class EmotionGetBaseListResponse : IPacket<EmotionGetBaseListResponse>
+public class EmotionGetBaseListResponse(uint Result = 0) : IPacket<EmotionGetBaseListResponse>
 {
     public static EmotionGetBaseListResponse FromBytes(ReadOnlySpan<byte> data)
     {
@@ -9,9 +9,9 @@ public class EmotionGetBaseListResponse : IPacket<EmotionGetBaseListResponse>
 
     public byte[] ToBytes()
     {
-        var writer = new PacketWriter();
-        writer.Write((uint)0);//Result
-        writer.Write((uint)0);
+        using var writer = new PacketWriter();
+        writer.Write(Result);
+        writer.Write((uint)0);//Array length?
         return writer.ToBytes();
     }
 }

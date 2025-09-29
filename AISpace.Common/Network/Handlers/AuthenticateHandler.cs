@@ -1,22 +1,22 @@
 ﻿using AISpace.Common.DAL.Repositories;
 using AISpace.Common.Network.Packets.Auth;
-using NLog;
+using Microsoft.Extensions.Logging;
 
 namespace AISpace.Common.Network.Handlers;
 
-internal class AuthenticateHandler(IUserRepository repo) : IPacketHandler
+public class AuthenticateHandler(IUserRepository repo, ILogger<AuthenticateHandler> logger) : IPacketHandler
 {
+    private readonly ILogger<AuthenticateHandler> _logger = logger;
     public PacketType RequestType => PacketType.AuthenticateRequest;
     public PacketType ResponseType => PacketType.AuthenticateResponse;
 
     public MessageDomain Domains => MessageDomain.Auth;
 
-    private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
     public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
     {
         var req = AuthenticateRequest.FromBytes(payload.Span);
-        _logger.Info($"Username: '{req.Username}', Password: {req.Password}");
+        _logger.LogInformation("Username: '{Username}', Password: {Password}", req.Username, req.Password);
         //TODO: Implement a check to repo
         bool valid = await repo.ValidateCredentialsAsync(req.Username, req.Password);
         uint userID = 31874;

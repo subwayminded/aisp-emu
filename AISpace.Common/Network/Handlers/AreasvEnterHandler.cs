@@ -1,6 +1,3 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using AISpace.Common.Game;
 using AISpace.Common.Network.Packets.Area;
 using NLog;
@@ -40,7 +37,7 @@ public class AreasvEnterHandler : IPacketHandler
                 await Task.Delay(TimeSpan.FromSeconds(1), ct);
 
                 var moveData = new MovementData(-227.392f, -0.043f, -1418.097f, -119, MovementType.Stopped);
-                var moveNotify = new AvatarNotifyMove(24, moveData);
+                var moveNotify = new AvatarNotifyMove(0, 24, moveData);
                 await connection.SendAsync(PacketType.AvatarNotifyMove, moveNotify.ToBytes(), ct);
             }
             catch (OperationCanceledException)

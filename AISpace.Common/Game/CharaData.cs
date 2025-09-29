@@ -20,7 +20,7 @@ public class CharaData(uint chara_id, uint character_id, string name)
     {
         using var writer = new Network.PacketWriter();
         writer.Write(chara_id, character_id);
-        writer.WriteFixedAsciiString(name, 37);
+        writer.WriteFixedString(name, 37, "ASCII");
         writer.Write(visual.ToBytes());
         //writer.Write(new byte[6]);
         writer.Write(moveData.ToBytes());

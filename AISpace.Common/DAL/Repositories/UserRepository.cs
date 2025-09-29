@@ -33,7 +33,7 @@ public class UserRepository(MainContext db) : IUserRepository
         return await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
     }
 
-    public async Task AddSessionAsync(uint userId, string otp)
+    public async Task AddSessionAsync(int userId, string otp)
     {
         var session = new UserSession { UserID = userId, OTP = otp };
         _db.UserSessions.Add(session);

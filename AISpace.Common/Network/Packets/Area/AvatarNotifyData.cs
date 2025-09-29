@@ -2,7 +2,7 @@
 
 namespace AISpace.Common.Network.Packets.Area;
 
-public class AvatarNotifyData(uint result, AvatarData avatarData) : IPacket<AvatarNotifyData>
+public class AvatarNotifyData(uint Result, AvatarData avatarData) : IPacket<AvatarNotifyData>
 {
     public static AvatarNotifyData FromBytes(ReadOnlySpan<byte> data)
     {
@@ -12,7 +12,7 @@ public class AvatarNotifyData(uint result, AvatarData avatarData) : IPacket<Avat
     public byte[] ToBytes()
     {
         using var writer = new PacketWriter();
-        writer.Write(result);
+        writer.Write(Result);
         writer.Write(avatarData.ToBytes());
         return writer.ToBytes();
     }

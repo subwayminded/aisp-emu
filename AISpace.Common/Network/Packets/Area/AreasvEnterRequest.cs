@@ -3,15 +3,15 @@
 public class AreasvEnterRequest : IPacket<AreasvEnterRequest>
 {
 
-    public uint UserID;
-    public string OTP;
+    public required uint UserID;
+    public required string OTP;
     public static AreasvEnterRequest FromBytes(ReadOnlySpan<byte> data)
     {
         PacketReader reader = new(data);
         AreasvEnterRequest req = new()
         {
             UserID = reader.ReadUInt(),
-            OTP = reader.ReadFixedString(20)
+            OTP = reader.ReadFixedString(20, "ASCII")
         };
         return req;
     }

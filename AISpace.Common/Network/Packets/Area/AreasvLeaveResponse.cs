@@ -1,6 +1,6 @@
 ﻿namespace AISpace.Common.Network.Packets.Area;
 
-public class AreasvLeaveResponse : IPacket<AreasvLeaveResponse>
+public class AreasvLeaveResponse(uint Result = 0) : IPacket<AreasvLeaveResponse>
 {
     public static AreasvLeaveResponse FromBytes(ReadOnlySpan<byte> data)
     {
@@ -9,8 +9,8 @@ public class AreasvLeaveResponse : IPacket<AreasvLeaveResponse>
 
     public byte[] ToBytes()
     {
-        var writer = new PacketWriter();
-        writer.Write((uint)0);//Result
+        using var writer = new PacketWriter();
+        writer.Write(Result);
         return writer.ToBytes();
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace AISpace.Common.Config;
 
-public class Options
+public class ServerOptions
 {
     NetworkOptions NetworkOptions { get; set; }
     DbOptions DbOptions { get; set; }

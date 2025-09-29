@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using System.Net.Sockets;
-using NLog;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Parameters;
 
@@ -15,7 +14,6 @@ public class ClientConnection(Guid _Id, EndPoint _RemoteEndPoint, NetworkStream 
 {
     private const byte HeaderPrefix = 0x03;
     private const int HeaderSize = 2;
-    private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
     public CamelliaEngine Camellia = new();
     public KeyParameter? CamelliaKey;
     public ClientState CurrentState;
@@ -46,6 +44,7 @@ public class ClientConnection(Guid _Id, EndPoint _RemoteEndPoint, NetworkStream 
         writer.Write(packetType);
         writer.Write(data);
         byte[] dataToSend = writer.ToBytes();
+        Console.WriteLine($"[{string.Join(", ", dataToSend)}]");
         await Stream.WriteAsync(dataToSend, ct);
     }
 }

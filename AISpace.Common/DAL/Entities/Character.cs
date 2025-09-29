@@ -1,6 +1,4 @@
-﻿
-
-namespace AISpace.Common.DAL.Entities;
+﻿namespace AISpace.Common.DAL.Entities;
 
 public class Character
 {

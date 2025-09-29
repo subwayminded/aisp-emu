@@ -12,7 +12,7 @@ public class ItemGetBaseListResponse : IPacket<ItemGetBaseListResponse>
         Items = [];
         foreach (var row in File.ReadLines("testitems.csv"))
         {
-            if(string.IsNullOrEmpty(row)) continue;
+            if (string.IsNullOrEmpty(row)) continue;
             var columns = row.Split(',');
 
             if (columns.Length < 3) continue;

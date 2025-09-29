@@ -1,6 +1,4 @@
-﻿using AISpace.Common.Network;
-
-namespace AISpace.Common.Game;
+﻿namespace AISpace.Common.Game;
 
 public class ItemData
 {
@@ -44,25 +42,24 @@ public class ItemData
 
     public byte[] ToBytes()
     {
-        var writer = new PacketWriter();
-        writer.WriteUIntLE(Key);
-        writer.WriteUIntLE(SortedListPriority);
-        writer.WriteUIntLE(ItemId);
-        writer.WriteUIntLE(SkillId);
-        writer.WriteFixedJisString(Name, 97);
-        writer.WriteUIntLE(Category);
-        writer.WriteUIntLE(Socket1);
-        writer.WriteUIntLE(Socket2);
-        writer.WriteFixedJisString(Description, 769);
-        writer.WriteFixedJisString(LimitDesc, 193);
-        writer.WriteUIntLE(Flags);
-        writer.WriteUShortLE(_0x0448);
-        writer.WriteUIntLE(_0x044c);
-        writer.WriteUIntLE(_0x0450);
-        writer.WriteUIntLE(EmotionId);
-        writer.WriteUIntLE(_0x0458);
+        using var writer = new Network.PacketWriter();
+        writer.Write(Key);
+        writer.Write(SortedListPriority);
+        writer.Write(ItemId);
+        writer.Write(SkillId);
+        writer.WriteFixedString(Name, 97, "Shift_JIS");
+        writer.Write(Category);
+        writer.Write(Socket1);
+        writer.Write(Socket2);
+        writer.WriteFixedString(Description, 769, "Shift_JIS");
+        writer.WriteFixedString(LimitDesc, 193, "Shift_JIS");
+        writer.Write(Flags);
+        writer.Write(_0x0448);
+        writer.Write(_0x044c);
+        writer.Write(_0x0450);
+        writer.Write(EmotionId);
+        writer.Write(_0x0458);
 
-        byte[] data = writer.ToBytes().AsSpan(0, writer.Length).ToArray();
-        return data;
+        return writer.ToBytes();
     }
 }

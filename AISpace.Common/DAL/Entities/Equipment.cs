@@ -1,6 +1,4 @@
-﻿
-
-namespace AISpace.Common.DAL.Entities;
+﻿namespace AISpace.Common.DAL.Entities;
 
 public class Equipment
 {
@@ -8,7 +6,7 @@ public class Equipment
     public string EquipmentName { get; set; } = string.Empty;
 
     // Foreign key
-    public int CharaId { get; set; }
+    public int CharacterId { get; set; }
 
     // Navigation back to Character
     public Character Chara { get; set; } = null!;

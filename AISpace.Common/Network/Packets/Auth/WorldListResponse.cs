@@ -1,8 +1,6 @@
-﻿using AISpace.Common.DAL.Entities;
+﻿namespace AISpace.Common.Network.Packets.Auth;
 
-namespace AISpace.Common.Network.Packets.Auth;
-
-public class WorldListResponse(uint result, List<DAL.Entities.World> worlds) : IPacket<WorldListResponse>
+public class WorldListResponse(uint Result, List<DAL.Entities.World> Worlds) : IPacket<WorldListResponse>
 {
 
     public static WorldListResponse FromBytes(ReadOnlySpan<byte> data)
@@ -13,15 +11,15 @@ public class WorldListResponse(uint result, List<DAL.Entities.World> worlds) : I
     public byte[] ToBytes()
     {
         var writer = new PacketWriter();
-        writer.Write(result);//Result
-        writer.Write((uint)worlds.Count);//Result
-        foreach (var world in worlds)
+        writer.Write(Result);
+        writer.Write((uint)Worlds.Count);
+        foreach (var world in Worlds)
         {
-            writer.Write((uint)world.Id);//Result
-            writer.WriteFixedAsciiString(world.Name, 97); //World Name
-            writer.WriteFixedAsciiString(world.Description, 766); //World Description
+            writer.Write((uint)world.Id);
+            writer.WriteFixedString(world.Name, 97, "ASCII"); //World Name
+            writer.WriteFixedString(world.Description, 766, "ASCII"); //World Description
         }
-        writer.Write((uint)0); //Padding
+        writer.Write((uint)0); //Padding?
         return writer.ToBytes();
     }
 }

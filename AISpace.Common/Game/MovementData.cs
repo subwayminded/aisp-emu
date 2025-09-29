@@ -1,9 +1,6 @@
-﻿using System.Numerics;
-using Microsoft.EntityFrameworkCore.Storage;
+﻿namespace AISpace.Common.Game;
 
-namespace AISpace.Common.Game;
-
-public enum MovementType: byte
+public enum MovementType : byte
 {
     Stopped = 0,
     Walking = 1,
