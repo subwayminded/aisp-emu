@@ -2,7 +2,7 @@ using System.Text;
 using AISpace.Common.Network.Packets.Common;
 using NLog;
 
-namespace AISpace.Common.Network.Handlers;
+namespace AISpace.Common.Network.Handlers.Msg;
 
 public class LoginHandler : IPacketHandler
 {

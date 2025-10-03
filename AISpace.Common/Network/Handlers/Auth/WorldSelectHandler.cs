@@ -1,7 +1,7 @@
 ﻿using AISpace.Common.Network.Packets.Auth;
 using NLog;
 
-namespace AISpace.Common.Network.Handlers;
+namespace AISpace.Common.Network.Handlers.Auth;
 
 public class WorldSelectHandler() : IPacketHandler
 {

@@ -1,12 +1,12 @@
 ﻿using AISpace.Common.Network.Packets.Common;
 
-namespace AISpace.Common.Network.Handlers;
+namespace AISpace.Common.Network.Handlers.Common;
 
 public class VersionCheckHandler : IPacketHandler
 {
     public PacketType RequestType => PacketType.VersionCheckRequest;
     public PacketType ResponseType => PacketType.VersionCheckResponse;
-    public MessageDomain Domains => MessageDomain.Auth;
+    public MessageDomain Domains => MessageDomain.Msg | MessageDomain.Area | MessageDomain.Auth;
 
     public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
     {

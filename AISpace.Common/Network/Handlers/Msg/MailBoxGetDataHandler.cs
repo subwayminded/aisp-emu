@@ -1,10 +1,10 @@
-namespace AISpace.Common.Network.Handlers;
+namespace AISpace.Common.Network.Handlers.Msg;
 
-public class CircleGetDataHandler : IPacketHandler
+public class MailBoxGetDataHandler : IPacketHandler
 {
-    public PacketType RequestType => PacketType.CircleGetDataRequest;
+    public PacketType RequestType => PacketType.MailBoxGetDataRequest;
 
-    public PacketType ResponseType => PacketType.CircleGetDataResponse;
+    public PacketType ResponseType => PacketType.MailBoxGetDataResponse;
 
     public MessageDomain Domains => MessageDomain.Msg;
 
@@ -12,8 +12,7 @@ public class CircleGetDataHandler : IPacketHandler
     {
         using PacketWriter writer = new();
         writer.Write((uint)0); // Result
-        writer.Write((uint)0); // circle_data
-        writer.Write((uint)0); // auth_level
+        writer.Write((uint)0); // mail
         await connection.SendAsync(ResponseType, writer.ToBytes(), ct);
     }
 }

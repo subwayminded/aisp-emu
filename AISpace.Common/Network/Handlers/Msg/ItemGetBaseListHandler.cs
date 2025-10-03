@@ -1,6 +1,6 @@
 using AISpace.Common.Network.Packets.Msg;
 
-namespace AISpace.Common.Network.Handlers;
+namespace AISpace.Common.Network.Handlers.Msg;
 
 public class ItemGetBaseListHandler : IPacketHandler
 {

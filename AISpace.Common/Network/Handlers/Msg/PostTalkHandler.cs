@@ -1,7 +1,7 @@
 using AISpace.Common.Network.Packets;
 using NLog;
 
-namespace AISpace.Common.Network.Handlers;
+namespace AISpace.Common.Network.Handlers.Msg;
 
 public class PostTalkHandler : IPacketHandler
 {

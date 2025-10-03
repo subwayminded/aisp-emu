@@ -2,7 +2,7 @@
 using AISpace.Common.Network.Packets.Auth;
 using Microsoft.Extensions.Logging;
 
-namespace AISpace.Common.Network.Handlers;
+namespace AISpace.Common.Network.Handlers.Auth;
 
 public class AuthenticateHandler(IUserRepository repo, ILogger<AuthenticateHandler> logger) : IPacketHandler
 {

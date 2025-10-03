@@ -1,6 +1,6 @@
 ﻿using AISpace.Common.Network.Packets.Common;
 
-namespace AISpace.Common.Network.Handlers;
+namespace AISpace.Common.Network.Handlers.Common;
 
 public class PingHandler : IPacketHandler
 {

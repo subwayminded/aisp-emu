@@ -2,7 +2,7 @@
 using AISpace.Common.DAL.Repositories;
 using AISpace.Common.Network.Packets.Auth;
 
-namespace AISpace.Common.Network.Handlers;
+namespace AISpace.Common.Network.Handlers.Auth;
 
 public class WorldListHandler(IWorldRepository repo) : IPacketHandler
 {
