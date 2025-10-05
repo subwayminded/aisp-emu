@@ -3,7 +3,8 @@
 public class GameState
 {
     private readonly ReaderWriterLockSlim _lock = new();
-    private readonly uint _worldID;
+    private readonly int _worldID;
+    private readonly int _channelID;
     private readonly Dictionary<Guid, string> _players = new();
     private readonly Dictionary<Guid, object> _npcs = new();
 

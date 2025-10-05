@@ -30,6 +30,7 @@ public class PacketDispatcher
         else
         {
             Console.WriteLine($"No handler for {domain}:{type}");
+            Console.WriteLine($"Raw Data: {BitConverter.ToString(payload)}");
         }
     }
 }

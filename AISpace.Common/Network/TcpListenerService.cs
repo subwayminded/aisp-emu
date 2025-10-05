@@ -53,7 +53,7 @@ public class TcpListenerService : BackgroundService
             var context = new ClientConnection(Guid.NewGuid(), client.Client.RemoteEndPoint!, client.GetStream());
             _clients[context.Id] = context;
             if (Encrypted)
-                _ = HandleClientKeyExchangeAsync(context); // fire and forget
+                _ = HandleClientKeyExchangeAsync(context);
             else
                 _ = HandleClientAsync(context);
 
@@ -118,7 +118,7 @@ public class TcpListenerService : BackgroundService
                 if (payloadLength > 0)
                     await ReadExactAsync(stream, payload, _cts.Token);
 
-                _logger.LogInformation("{name} Writing message to Channel {Id}", name, context.Id);
+                //_logger.LogInformation("{name} Writing message to Channel {Id}", name, context.Id);
                 //Need to check if PacketType is supported. If not send a logout?
                 _channel.Writer.TryWrite(new Packet(context, type, payload, typeShort));
             }

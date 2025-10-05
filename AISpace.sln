@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36414.22
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AISpace.Server", "AISpace.Auth.Server\AISpace.Server.csproj", "{10003C6F-A332-4009-8F35-30E158206F12}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AISpace.Server", "AISpace.Server\AISpace.Server.csproj", "{10003C6F-A332-4009-8F35-30E158206F12}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AISpace.Common", "AISpace.Common\AISpace.Common.csproj", "{F7B40D2D-5567-43A7-92D2-AF7675885B26}"
 EndProject

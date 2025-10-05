@@ -16,7 +16,7 @@ public class AvatarGetDataHandler : IPacketHandler
         dataResponse.AddEquip(10100140, 0);
         dataResponse.AddEquip(10200130, 0);
         dataResponse.AddEquip(10100190, 0);
-        await connection.SendAsync(ResponseType, dataResponse.ToBytes(), ct);
+        //await connection.SendAsync(ResponseType, dataResponse.ToBytes(), ct);
 
         var avatarGetDataResp = new AvatarGetDataResponse(0);
         await connection.SendAsync(PacketType.AvatarGetDataResponse, avatarGetDataResp.ToBytes(), ct);

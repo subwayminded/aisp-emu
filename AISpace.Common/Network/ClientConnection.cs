@@ -1,13 +1,18 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using AISpace.Common.DAL.Entities;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Parameters;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AISpace.Common.Network;
 
 public enum ClientState
 {
     Init = 1,
+    ConnectedToAuth = 2,
+    ConnectedToMsg = 3,
+    ConnectedToArea=4,
 }
 
 public class ClientConnection(Guid _Id, EndPoint _RemoteEndPoint, NetworkStream _ns, string _Version = "")
@@ -21,13 +26,13 @@ public class ClientConnection(Guid _Id, EndPoint _RemoteEndPoint, NetworkStream 
     public EndPoint RemoteEndPoint = _RemoteEndPoint;
     public NetworkStream Stream = _ns;
     public string Version = _Version;
+    public int connectedChannel = 0;
     public DateTimeOffset lastPing;
-    public DateTimeOffset ConnectedUtc { get; } = DateTimeOffset.UtcNow;
 
-    public async Task SendRawAsync(byte[] data, CancellationToken ct = default)
-    {
-        await Stream.WriteAsync(data, ct);
-    }
+    public User? clientUser;
+    public DateTimeOffset Connected { get; } = DateTimeOffset.UtcNow;
+
+    public async Task SendRawAsync(byte[] data, CancellationToken ct = default) => await Stream.WriteAsync(data, ct);
 
     public void SetCamelliaKey(byte[] key)
     {
@@ -44,7 +49,8 @@ public class ClientConnection(Guid _Id, EndPoint _RemoteEndPoint, NetworkStream 
         writer.Write(packetType);
         writer.Write(data);
         byte[] dataToSend = writer.ToBytes();
-        Console.WriteLine($"[{string.Join(", ", dataToSend)}]");
-        await Stream.WriteAsync(dataToSend, ct);
+        await SendRawAsync(dataToSend, ct);
     }
+
+    public async Task SendAsync<T>(PacketType type, IPacket<T> packet, CancellationToken ct = default) where T : IPacket<T> => await SendAsync(type, packet.ToBytes(), ct);
 }

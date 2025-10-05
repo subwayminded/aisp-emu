@@ -1,8 +1,7 @@
 ﻿namespace AISpace.Common.Network.Packets.Common;
 
-public class PingResponse(uint _time) : IPacket<PingResponse>
+public class PingResponse(uint Time) : IPacket<PingResponse>
 {
-    public uint time = _time;
     public static PingResponse FromBytes(ReadOnlySpan<byte> data)
     {
         PacketReader reader = new(data);
@@ -14,7 +13,7 @@ public class PingResponse(uint _time) : IPacket<PingResponse>
     public byte[] ToBytes()
     {
         var writer = new PacketWriter();
-        writer.Write(time);//Result
+        writer.Write(Time);//Result
         return writer.ToBytes();
     }
 }

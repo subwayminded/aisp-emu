@@ -10,6 +10,7 @@ public class MainContext(DbContextOptions<MainContext> options) : DbContext(opti
     public DbSet<GameChannel> Channels { get; set; }
     //public DbSet<ServerInformation> Servers { get; set; }
     public DbSet<World> Worlds { get; set; }
+    public DbSet<Character> Characters { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
@@ -23,11 +24,11 @@ public class MainContext(DbContextOptions<MainContext> options) : DbContext(opti
                     .WithMany(c => c.Equips)
                     .HasForeignKey(e => e.CharacterId);
 
-        modelBuilder.Entity<UserSession>(b =>
-        {
-            b.HasKey(x => x.Id);
-            b.HasIndex(x => x.UserID);
-            b.HasOne<User>().WithMany().HasForeignKey(x => x.UserID);
-        });
+        //modelBuilder.Entity<UserSession>(b =>
+        //{
+        //    b.HasKey(x => x.Id);
+        //    b.HasIndex(x => x.UserID);
+        //    b.HasOne<User>().WithMany().HasForeignKey(x => x.UserID);
+        //});
     }
 }

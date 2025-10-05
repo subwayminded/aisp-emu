@@ -17,10 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DAL\DTO\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="testitems.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

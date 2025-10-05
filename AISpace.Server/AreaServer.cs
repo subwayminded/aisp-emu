@@ -1,26 +1,23 @@
-using AISpace.Common.Game;
-
 namespace AISpace.Server;
 
-public class MsgServer : BackgroundService
+public class AreaServer : BackgroundService
 {
-    private readonly ILogger<MsgServer> _logger;
+    private readonly ILogger<AreaServer> _logger;
     private readonly MainContext _db;
     private readonly PacketDispatcher _dispatcher;
     private readonly IUserRepository _userRepo;
     private readonly IWorldRepository _worldRepo;
-    private readonly SharedState _state;
     private readonly ChannelReader<Packet> _channel;
-    public readonly MessageDomain ActiveDomain = MessageDomain.Msg;
+    public readonly MessageDomain ActiveDomain = MessageDomain.Area;
 
     private readonly TimeSpan _tickRate = TimeSpan.FromMilliseconds(1000.0 / 60.0);
 
-    public MsgServer(ILogger<MsgServer> logger,
+    public AreaServer(ILogger<AreaServer> logger,
         MainContext db,
         IUserRepository userRepo,
-        MsgChannel channel,
+        AreaChannel channel,
         IWorldRepository worldRepo,
-        PacketDispatcher dispatcher, SharedState state)
+        PacketDispatcher dispatcher)
     {
         _logger = logger;
         _db = db;
@@ -28,7 +25,6 @@ public class MsgServer : BackgroundService
         _dispatcher = dispatcher;
         _userRepo = userRepo;
         _worldRepo = worldRepo;
-        _state = state;
 
         //Setup DB
         _db.Database.EnsureCreated();
@@ -47,7 +43,6 @@ public class MsgServer : BackgroundService
     {
         await foreach (var packet in _channel.ReadAllAsync(ct))
         {
-            _logger.LogInformation("Dispatching {domain} packet of type {type}", ActiveDomain, packet.Type);
             await _dispatcher.DispatchAsync(ActiveDomain, packet.Type, packet.Data, packet.Client, ct);
         }
     }
@@ -57,14 +52,12 @@ public class MsgServer : BackgroundService
         var sw = new PeriodicTimer(_tickRate);
         while (await sw.WaitForNextTickAsync(ct))
         {
-            // Process new chat messages
-            while (!_state.newMessages.IsEmpty)
-            {
-                _state.newMessages.TryDequeue(out var message);
-                _logger.LogInformation("{id} sent {message}", message.id, message.message);
-                //Send message to all other users
-            }
-
+            // Advance game simulation
+            UpdateWorld();
         }
+    }
+    private void UpdateWorld()
+    {
+        // game state update logic goes here
     }
 }

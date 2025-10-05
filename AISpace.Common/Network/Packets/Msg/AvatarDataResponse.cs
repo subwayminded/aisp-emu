@@ -19,17 +19,19 @@ public class AvatarDataResponse(uint result, string name, uint modelId, uint isl
 
     public byte[] ToBytes()
     {
-        var _equips = Equips;
+        var writer = new PacketWriter();
+        writer.Write(result);
+        /*var _equips = Equips;
         while (_equips.Count < 30)
             AddEquip(0, 0);
-        using var writer = new PacketWriter();
-        writer.Write(result);
+        
+        
         writer.Write(name);
         writer.Write(modelId);
         writer.Write(Visual.ToBytes());
         writer.Write(islandID, slotId);
         foreach (var equip in _equips)
-            writer.Write(equip.ToBytes());
+           writer.Write(equip.ToBytes());*/
         return writer.ToBytes();
     }
 }

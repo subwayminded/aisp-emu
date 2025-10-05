@@ -14,4 +14,6 @@ public interface IUserRepository
     Task<bool> ValidateSessionAsync(int userId, string otp);
 
     Task<UserSession?> GetSessionAsync(int userId, string otp);
+
+    Task AddSessionAsync(int userId, string otp);
 }

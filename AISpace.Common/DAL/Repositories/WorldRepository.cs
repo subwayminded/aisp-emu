@@ -7,11 +7,11 @@ public class WorldRepository(MainContext db) : IWorldRepository
 {
     private readonly MainContext _db = db;
 
-    public async Task AddWorldAsync(string name, string description)
+    public async Task AddWorldAsync(string name, string description, string address, ushort port)
     {
         if ((await GetWorldByNameAsync(name)) != null)
             return;
-        var world = new World { Name = name, Description = description };
+        var world = new World { Name = name, Description = description, Address = address, Port = port };
         _db.Worlds.Add(world);
         await _db.SaveChangesAsync();
     }

@@ -26,8 +26,13 @@ public class AuthServer : BackgroundService
         _userRepo = userRepo;
         _worldRepo = worldRepo;
 
-        //Setup DB
-        //_db.Database.EnsureCreated();
+        //Setup DB. Since dev just nuke and recreate
+        //Nuke DB
+        _db.Database.EnsureDeleted();
+        //Create DB
+        _db.Database.EnsureCreated();
+
+        _worldRepo.AddWorldAsync("test", "test2", "127.0.0.1", 50052);
     }
 
     protected override async Task ExecuteAsync(CancellationToken ct)
@@ -43,7 +48,6 @@ public class AuthServer : BackgroundService
     {
         await foreach (var packet in _channel.ReadAllAsync(ct))
         {
-            _logger.LogInformation("Dispatching {domain} packet of type {type}", ActiveDomain, packet.Type);
             await _dispatcher.DispatchAsync(ActiveDomain, packet.Type, packet.Data, packet.Client, ct);
         }
     }
