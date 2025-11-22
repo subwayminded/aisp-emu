@@ -2,7 +2,7 @@
 
 public class AvatarDataResponse(uint result, string name, uint modelId, uint islandID, uint slotId) : IPacket<AvatarDataResponse>
 {
-    public Game.CharaVisual Visual = new(1, 1, 1, 1, 2, 0, 0);
+    public Game.CharaVisual Visual = new(Game.BloodType.A, 1, 1, 1, 2, 0, 0);
     public List<Game.ItemSlotInfo> Equips = new(30);
 
     //equips?
@@ -21,7 +21,7 @@ public class AvatarDataResponse(uint result, string name, uint modelId, uint isl
     {
         var writer = new PacketWriter();
         writer.Write(result);
-        /*var _equips = Equips;
+        var _equips = Equips;
         while (_equips.Count < 30)
             AddEquip(0, 0);
         
@@ -31,7 +31,7 @@ public class AvatarDataResponse(uint result, string name, uint modelId, uint isl
         writer.Write(Visual.ToBytes());
         writer.Write(islandID, slotId);
         foreach (var equip in _equips)
-           writer.Write(equip.ToBytes());*/
+           writer.Write(equip.ToBytes());
         return writer.ToBytes();
     }
 }

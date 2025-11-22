@@ -2,8 +2,8 @@
 
 public class ItemSlotInfo(uint id, uint socket)
 {
-    public uint Id = id;
-    public uint Socket = socket;
+    public uint Id = id;//4
+    public uint Socket = socket;//4
 
     public byte[] ToBytes()
     {

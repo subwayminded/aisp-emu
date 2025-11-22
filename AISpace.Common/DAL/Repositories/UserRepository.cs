@@ -7,46 +7,51 @@ public class UserRepository(MainContext db) : IUserRepository
 {
 
     private readonly MainContext _db = db;
-    public async Task<bool> ValidateCredentialsAsync(string username, string password)
+    public async Task<User?> AuthenticateAsync(string username, string password)
+    {
+        var user = await db.Users
+            .Include(u => u.Characters)
+                .ThenInclude(c => c.Inventory)
+                    .ThenInclude(i => i.Item)
+            .Include(u => u.Characters)
+                .ThenInclude(c => c.Equipment)
+                    .ThenInclude(e => e.Item)
+            .SingleOrDefaultAsync(u => u.Username == username);
+        if (user is null) return null;
+
+        return user.VerifyPassword(password) ? user : null;
+    }
+
+    public async Task AddAsync(string username, string password)
+    {
+        var user = new User { Username = username };
+        user.SetPassword(password);
+
+        db.Users.Add(user);
+        await db.SaveChangesAsync();
+    }
+
+    public async Task<User?> GetByUsernameAsync(string username)
     {
         return await _db.Users
-            .AnyAsync(u => u.Username == username && u.Password == password);
+            .Include(u => u.Characters)
+                .ThenInclude(c => c.Inventory)
+                    .ThenInclude(i => i.Item)
+            .Include(u => u.Characters)
+                .ThenInclude(c => c.Equipment)
+                    .ThenInclude(e => e.Item)
+            .FirstOrDefaultAsync(u => u.Username == username);
     }
 
-    public async Task AddUserAsync(string username, string password)
+    public async Task<User?> GetById(int userId)
     {
-        if ((await GetUserByUsernameAsync(username)) != null)
-            return;
-
-        var user = new User { Username = username, Password = password };
-        _db.Users.Add(user);
-        await _db.SaveChangesAsync();
-    }
-
-    public async Task<User?> GetUserByUsernameAsync(string username)
-    {
-        return await _db.Users.FirstOrDefaultAsync(u => u.Username == username);
-    }
-
-    public async Task<User?> GetUserByIdAsync(int userId)
-    {
-        return await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
-    }
-
-    public async Task AddSessionAsync(int userId, string otp)
-    {
-        var session = new UserSession { UserID = userId, OTP = otp };
-        _db.UserSessions.Add(session);
-        await _db.SaveChangesAsync();
-    }
-    public async Task<bool> ValidateSessionAsync(int userId, string otp)
-    {
-        return await _db.UserSessions
-            .AnyAsync(s => s.Id == userId && s.OTP == otp);
-    }
-
-    public async Task<UserSession?> GetSessionAsync(int userId, string otp)
-    {
-        return await _db.UserSessions.FirstOrDefaultAsync(s => s.Id == userId && s.OTP == otp);
+        return await _db.Users
+            .Include(u => u.Characters)
+                .ThenInclude(c => c.Inventory)
+                    .ThenInclude(i => i.Item)
+            .Include(u => u.Characters)
+                .ThenInclude(c => c.Equipment)
+                    .ThenInclude(e => e.Item)
+            .FirstOrDefaultAsync(u => u.Id == userId);
     }
 }

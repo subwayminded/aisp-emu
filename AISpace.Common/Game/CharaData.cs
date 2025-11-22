@@ -3,10 +3,10 @@
 public class CharaData(uint chara_id, uint character_id, string name)
 {
 
-    public uint chara_id = chara_id;
-    public uint character_id = character_id;
+    public uint chara_id = chara_id;//Possibly Character Slot ID?
+    public uint character_id = character_id;//Possibly Avatar ID
     public string name = name;
-    public CharaVisual visual = new(1, 1, 1, 1, 2, 0, 0);
+    public CharaVisual Visual = new(BloodType.A, 1, 1, 1, 2, 0, 0);
     public MovementData moveData = new(0, 0, 0, 0, 0);
     //X-4069.790 Y-0.043 Z-2813.927
     public List<Game.ItemSlotInfo> Equips = new(30);
@@ -15,22 +15,24 @@ public class CharaData(uint chara_id, uint character_id, string name)
     {
         Equips.Add(new ItemSlotInfo(id, socket));
     }
-    //X-14.713552 Y-3541.8713 Z3.062385E+21
     public byte[] ToBytes()
     {
+        while (Equips.Count < 30)
+            AddEquip(0, 0);
         using var writer = new Network.PacketWriter();
         writer.Write(chara_id, character_id);
-        writer.WriteFixedString(name, 37, "ASCII");
-        writer.Write(visual.ToBytes());
+        writer.WriteFixedString(name, 37, "ASCII");//37
+        writer.Write(Visual.ToBytes());
         //writer.Write(new byte[6]);
+        //writer.Write(moveData.ToBytes());
+        writer.Write(0f, 0f, 0f, 0f);
         writer.Write(moveData.ToBytes());
-        writer.Write(moveData.ToBytes());
-        writer.Write(new byte[6]);
+        writer.Write(new byte[2]);
         writer.Write(new byte[8]);
         writer.Write((ushort)Equips.Count);
         foreach (var item in Equips)
             writer.Write(item.ToBytes());
-        writer.Write(new byte[217]);
+        writer.Write(new byte[1]);
         return writer.ToBytes();
     }
 }

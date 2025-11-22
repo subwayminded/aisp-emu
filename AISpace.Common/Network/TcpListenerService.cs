@@ -97,30 +97,39 @@ public class TcpListenerService : BackgroundService
         {
             while (!_cts.Token.IsCancellationRequested)
             {
-                int read = await stream.ReadAsync(buffer.AsMemory(0, 1), _cts.Token);
+                //try
+                //{
+                    int read = await stream.ReadAsync(buffer.AsMemory(0, 1), _cts.Token);
 
-                //If data is empty then break
-                if (read == 0)
-                    break;
+                    //If data is empty then break
+                    if (read == 0)
+                        break;
 
 
-                int packetLength = buffer[0];
-                if (packetLength < 2)
-                    continue;
+                    int packetLength = buffer[0];
+                    if (packetLength < 2)
+                        continue;
 
-                await ReadExactAsync(stream, buffer.AsMemory(0, 2), _cts.Token);
-                ushort typeShort = BinaryPrimitives.ReadUInt16LittleEndian(buffer.AsSpan(0, 2));
-                var type = (PacketType)typeShort;
-                int payloadLength = packetLength - 2;//2 due to packettype being 2 bytes
+                    await ReadExactAsync(stream, buffer.AsMemory(0, 2), _cts.Token);
+                    ushort typeShort = BinaryPrimitives.ReadUInt16LittleEndian(buffer.AsSpan(0, 2));
+                    _logger.LogInformation("TypeShort: {type}", typeShort);
+                    var type = (PacketType)typeShort;
+                    _logger.LogInformation("EnumType: {type}", type);
+                    int payloadLength = packetLength - 2;//2 due to packettype being 2 bytes
 
-                byte[] payload = new byte[payloadLength];
+                    byte[] payload = new byte[payloadLength];
 
-                if (payloadLength > 0)
-                    await ReadExactAsync(stream, payload, _cts.Token);
+                    if (payloadLength > 0)
+                        await ReadExactAsync(stream, payload, _cts.Token);
 
-                //_logger.LogInformation("{name} Writing message to Channel {Id}", name, context.Id);
-                //Need to check if PacketType is supported. If not send a logout?
-                _channel.Writer.TryWrite(new Packet(context, type, payload, typeShort));
+                    //_logger.LogInformation("{name} Writing message to Channel {Id}", name, context.Id);
+                    //Need to check if PacketType is supported. If not send a logout?
+                    _channel.Writer.TryWrite(new Packet(context, type, payload, typeShort));
+                //}
+                //catch (Exception ex)
+                //{
+                //    _logger.LogError("Error in processing packet {msg}, {type}", ex.Message, typeof(Exception));
+                //}
             }
         }
         catch (Exception ex)

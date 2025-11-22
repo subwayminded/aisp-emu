@@ -1,9 +1,9 @@
 ﻿namespace AISpace.Common.Network.Packets.Auth;
 
-public class AuthenticateResponse(uint id) : IPacket<AuthenticateResponse>
+public class AuthenticateFailureResponse(AuthResponseResult Result) : IPacket<AuthenticateFailureResponse>
 {
 
-    public static AuthenticateResponse FromBytes(ReadOnlySpan<byte> data)
+    public static AuthenticateFailureResponse FromBytes(ReadOnlySpan<byte> data)
     {
 
         throw new NotImplementedException();
@@ -12,7 +12,7 @@ public class AuthenticateResponse(uint id) : IPacket<AuthenticateResponse>
     public byte[] ToBytes()
     {
         using var writer = new PacketWriter();
-        writer.Write(id);
+        writer.Write((uint)Result);
         return writer.ToBytes();
     }
 }

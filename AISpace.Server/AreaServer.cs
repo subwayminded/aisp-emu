@@ -1,3 +1,5 @@
+using AISpace.Common.DAL.Entities;
+
 namespace AISpace.Server;
 
 public class AreaServer : BackgroundService
@@ -28,6 +30,23 @@ public class AreaServer : BackgroundService
 
         //Setup DB
         _db.Database.EnsureCreated();
+
+        if (!db.Items.Any())
+        {
+            List<Item> items = [];
+            _logger.LogInformation("Loading items from CSV");
+            foreach (var row in File.ReadLines("testitems.csv"))
+                items.Add(new Item { Id = int.Parse(row.Split(',')[0]), Name = row.Split(',')[2] });
+
+            //Deduplicate items by Id
+            items = [.. items.DistinctBy(i => i.Id)];
+
+            db.ChangeTracker.AutoDetectChangesEnabled = false;
+            db.Items.AddRange(items);
+            db.SaveChanges();
+            db.ChangeTracker.AutoDetectChangesEnabled = true;
+            _logger.LogInformation("Loaded {count} items", items.Count);
+        }
     }
 
     protected override async Task ExecuteAsync(CancellationToken ct)

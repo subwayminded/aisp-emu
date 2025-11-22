@@ -1,4 +1,8 @@
-﻿namespace AISpace.Server;
+﻿using AISpace.Common.DAL.Entities;
+using AISpace.Common.Game;
+using Microsoft.EntityFrameworkCore;
+
+namespace AISpace.Server;
 
 public class AuthServer : BackgroundService
 {
@@ -32,10 +36,13 @@ public class AuthServer : BackgroundService
         //Create DB
         _db.Database.EnsureCreated();
 
-        _worldRepo.AddWorldAsync("test", "test2", "127.0.0.1", 50052);
+        if(db.Worlds.Any() == false)
+            _worldRepo.AddAsync("default", "Localhost World", "127.0.0.1", 50052);
+        if(db.Users.Any() == false)
+            _userRepo.AddAsync("testuser", "password");
     }
 
-    protected override async Task ExecuteAsync(CancellationToken ct)
+    protected override async Task ExecuteAsync(CancellationToken ct = default)
     {
         _logger.LogInformation("Starting {domain} server", ActiveDomain);
         var packetLoop = RunPacketLoop(ct);
@@ -44,7 +51,7 @@ public class AuthServer : BackgroundService
         await Task.WhenAll(packetLoop, gameLoop);
     }
 
-    private async Task RunPacketLoop(CancellationToken ct)
+    private async Task RunPacketLoop(CancellationToken ct = default)
     {
         await foreach (var packet in _channel.ReadAllAsync(ct))
         {
@@ -52,7 +59,7 @@ public class AuthServer : BackgroundService
         }
     }
 
-    private async Task RunGameLoop(CancellationToken ct)
+    private async Task RunGameLoop(CancellationToken ct = default)
     {
         var sw = new PeriodicTimer(_tickRate);
         while (await sw.WaitForNextTickAsync(ct))

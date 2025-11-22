@@ -1,10 +1,16 @@
+using System.Text;
+using AISpace.Common.DAL.Repositories;
 using AISpace.Common.Game;
+using AISpace.Common.Network.Handlers.Msg;
 using AISpace.Common.Network.Packets.Area;
+using AISpace.Common.Network.Packets.Common;
+using Microsoft.Extensions.Logging;
 using NLog;
+using static System.Net.WebRequestMethods;
 
 namespace AISpace.Common.Network.Handlers;
 
-public class AreasvEnterHandler : IPacketHandler
+public class AreasvEnterHandler(IUserSessionRepository sessionRepo, ILogger<AreasvEnterHandler> logger) : IPacketHandler
 {
     public PacketType RequestType => PacketType.AreasvEnterRequest;
 
@@ -12,14 +18,27 @@ public class AreasvEnterHandler : IPacketHandler
 
     public MessageDomain Domains => MessageDomain.Area;
 
-    private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+    private readonly IUserSessionRepository _sessionRepo = sessionRepo;
+    private readonly ILogger<AreasvEnterHandler> _logger = logger;
 
     public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
     {
-        var req = AreasvEnterRequest.FromBytes(payload.Span);
-        _logger.Info($"Client: {connection.Id} EnterRequest UserID: {req.UserID}, SessionID: {req.OTP}");
+        var loginReq = AreasvEnterRequest.FromBytes(payload.Span);
+        _logger.LogInformation("Client: {Id} EnterRequest UserID: {UserID}, SessionID: {OTP}", connection.Id, loginReq.UserID, loginReq.OTP);
+        var session = await _sessionRepo.GetValidSessionAsync(loginReq.OTP, ct);
 
-        var response = new AreasvEnterResponse(0, 25);
+        if (session is null || session.UserId != loginReq.UserID)
+        {
+            _logger.LogWarning("Client: {ClientId} Login failed for UserID: {UserID} with OTP: {OTP}", connection.Id, loginReq.UserID, loginReq.OTP);
+            await connection.SendAsync(ResponseType, new LoginResponse(AuthResponseResult.InvalidCredentials).ToBytes(), ct);
+            return;
+        }
+
+        connection.clientUser = session.User;
+        uint charId = (uint)connection.clientUser.Characters.First().Id;
+        _logger.LogInformation("Client: {ClientId} LoginRequest UserID: {UserID}, OTP: {OTP}, Name: {name}, CharID {charid}, CharName: {cname}", connection.Id, loginReq.UserID, loginReq.OTP, connection.clientUser.Username, charId, connection.clientUser.Characters.First().Name);
+
+        var response = new AreasvEnterResponse(0, 0);
         await connection.SendAsync(ResponseType, response.ToBytes(), ct);
 
         _ = Task.Run(async () =>
@@ -37,7 +56,7 @@ public class AreasvEnterHandler : IPacketHandler
                 //await Task.Delay(TimeSpan.FromSeconds(1), ct);
 
                 //var moveData = new MovementData(-227.392f, -0.043f, -1418.097f, -119, MovementType.Stopped);
-                //var moveNotify = new AvatarNotifyMove(0, 25, moveData);
+                //var moveNotify = new AvatarNotifyMove(0, (uint)connection.clientUser.Characters.First().Id, moveData);
                 //await connection.SendAsync(PacketType.AvatarNotifyMove, moveNotify.ToBytes(), ct);
             }
             catch (OperationCanceledException)

@@ -3,7 +3,9 @@
 public class UserSession
 {
     public int Id { get; set; }           // Primary key
-    public int UserID { get; set; }
-    public User User { get; set; } = null!;
     public string OTP { get; set; } = string.Empty;
+    public DateTime ExpiresAt { get; set; }
+
+    public int UserId { get; set; }
+    public User User { get; set; } = default!;
 }

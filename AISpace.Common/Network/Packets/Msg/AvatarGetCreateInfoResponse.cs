@@ -16,15 +16,11 @@ public class AvatarGetCreateInfoResponse : IPacket<AvatarGetCreateInfoResponse>
     private readonly List<byte> DefaultFemaleHairColours = [0, 4, 1, 2, 3];
     private readonly List<Game.ItemSlotInfo> DefaultFemaleEquipment = [];
 
-
-
-    //equips?
-
     public static AvatarGetCreateInfoResponse FromBytes(ReadOnlySpan<byte> data)
     {
         throw new NotImplementedException();
     }
-    //Avatar Create Request
+    //AvatarCreateRequest
     //43-68-61-72-6B-69-00-1B-4A-0F-00-04-00-00-00-01-01-02-00-00-00-01-00-00-00-03-7A-C7-A6-00-00-00-00-00
 
     public byte[] ToBytes()
@@ -72,18 +68,6 @@ public class AvatarGetCreateInfoResponse : IPacket<AvatarGetCreateInfoResponse>
         writer.Write((uint)DefaultFemaleEquipment.Count);
         foreach (var eq in DefaultFemaleEquipment)
             writer.Write(eq.ToBytes());
-
-        /*var _equips = Equips;
-        while (_equips.Count < 30)
-            AddEquip(0, 0);
-        
-        
-        writer.Write(name);
-        writer.Write(modelId);
-        writer.Write(Visual.ToBytes());
-        writer.Write(islandID, slotId);
-        foreach (var equip in _equips)
-           writer.Write(equip.ToBytes());*/
         return writer.ToBytes();
     }
 }

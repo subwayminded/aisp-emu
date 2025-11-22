@@ -29,6 +29,8 @@ public class ClientConnection(Guid _Id, EndPoint _RemoteEndPoint, NetworkStream 
     public int connectedChannel = 0;
     public DateTimeOffset lastPing;
 
+
+    public bool IsAuthenticated => clientUser != null;
     public User? clientUser;
     public DateTimeOffset Connected { get; } = DateTimeOffset.UtcNow;
 

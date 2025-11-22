@@ -1,8 +1,11 @@
+using AISpace.Common.DAL.Entities;
+using AISpace.Common.DAL.Repositories;
 using AISpace.Common.Network.Packets.Msg;
+using Microsoft.Extensions.Logging;
 
 namespace AISpace.Common.Network.Handlers.Msg;
 
-public class AvatarGetDataHandler : IPacketHandler
+public class AvatarGetDataHandler(ILogger<AvatarGetDataHandler> logger, ICharacterRepository charRepo) : IPacketHandler
 {
     public PacketType RequestType => PacketType.AvatarGetDataRequest;
 
@@ -10,14 +13,39 @@ public class AvatarGetDataHandler : IPacketHandler
 
     public MessageDomain Domains => MessageDomain.Msg;
 
+    ILogger<AvatarGetDataHandler> _logger = logger;
+    ICharacterRepository _charRepo = charRepo;
+
     public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
     {
-        var dataResponse = new AvatarDataResponse(0, "test", 1001011, 0, 0);
-        dataResponse.AddEquip(10100140, 0);
-        dataResponse.AddEquip(10200130, 0);
-        dataResponse.AddEquip(10100190, 0);
-        //await connection.SendAsync(ResponseType, dataResponse.ToBytes(), ct);
+        if(!connection.IsAuthenticated)
+            return;
 
+        _logger.LogWarning("Client: {ClientId} requested AvatarGetData ", connection.Id);
+
+
+        if (connection.clientUser!.Characters.Count != 0)
+        {
+
+            Character cha = connection.clientUser!.Characters.First();
+
+            var dataResponse = new AvatarDataResponse(0, cha.Name, cha.ModelId, 0, 0);
+            dataResponse.Visual.CharacterID = (uint)cha.Id;
+            dataResponse.Visual.BloodType = cha.BloodType;
+            dataResponse.Visual.Month = (byte)cha.Birthdate.Month;
+            dataResponse.Visual.Day = (byte)cha.Birthdate.Day;
+            dataResponse.Visual.Gender = (uint)cha.Gender;
+            dataResponse.Visual.Face = (byte)cha.FaceType;
+            dataResponse.Visual.Hairstyle = cha.Hairstyle;
+            foreach (var item in cha.Equipment)
+            {
+                dataResponse.AddEquip((uint)item.ItemId, 0);
+            }
+            //dataResponse.AddEquip(10100140, 0);
+            //dataResponse.AddEquip(10200130, 0);
+            //dataResponse.AddEquip(10100190, 0);
+            await connection.SendAsync(ResponseType, dataResponse.ToBytes(), ct);
+        }
         var avatarGetDataResp = new AvatarGetDataResponse(0);
         await connection.SendAsync(PacketType.AvatarGetDataResponse, avatarGetDataResp.ToBytes(), ct);
     }

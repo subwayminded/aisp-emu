@@ -1,8 +1,8 @@
 ﻿namespace AISpace.Common.Network.Packets.Common;
-
-public class LoginResponse : IPacket<LoginResponse>
+public class LoginResponse(AuthResponseResult Result) : IPacket<LoginResponse>
 {
-    readonly uint result = 0;
+    //Result: 0 = Success
+    //Any other value = Failure
     public static LoginResponse FromBytes(ReadOnlySpan<byte> data)
     {
         throw new NotImplementedException();
@@ -11,7 +11,7 @@ public class LoginResponse : IPacket<LoginResponse>
     public byte[] ToBytes()
     {
         using var writer = new PacketWriter();
-        writer.Write(result);//Result
+        writer.Write((uint)Result);
         return writer.ToBytes();
     }
 }

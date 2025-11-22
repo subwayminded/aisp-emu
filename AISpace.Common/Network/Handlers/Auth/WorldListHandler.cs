@@ -18,7 +18,7 @@ public class WorldListHandler(IWorldRepository repo, ILogger<WorldListHandler> l
     {
         try
         {
-            var worlds = await _worldRepository.GetAllWorldsAsync();
+            var worlds = await _worldRepository.GetAllAsync();
             var worldListResponse = new WorldListResponse(0, worlds);
 
             await connection.SendAsync(PacketType.Auth_WorldListResponse, worldListResponse.ToBytes(), ct);

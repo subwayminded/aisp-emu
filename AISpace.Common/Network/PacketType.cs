@@ -18,7 +18,7 @@ public enum PacketType : ushort
 
     AuthenticateRequest = 0xF24B, // 62027 CProtoAuth_client::send_authenticate
     AuthenticateResponse = 0xD4AB, // 54443 CProtoAuth_client::recv_authenticate_r
-
+    AuthenticateFailureResponse = 0xD845, //55365 CProtoAuth_client::recv_authenticate_r_failure
 
     //Msg types
     Msg_VersionCheckRequest = 0x62BC, // 25276 CProtoMsg_client::send_check_version
@@ -28,6 +28,10 @@ public enum PacketType : ushort
     Msg_AvatarDataResponse = 0x6747, // 26439 CProtoMsg_client::recv_avatar_data
     Msg_AvatarDestroyRequest = 0x765A, // 30298 CProtoMsg_client::send_avatar_destroy
     Msg_AvatarDestroyResponse = 0x000, // TODO CProtoMsg_client::recv_avatar_destroy_r
+    Msg_EnqueteGetRequest = 0xc578, //50552
+    Msg_EnqueteGetResponse = 0x24EE,
+    Msg_EnqueteAnswerRequest = 0x0352,
+    Msg_EnqueteAnswerResponse = 0x615A,
 
 
 
