@@ -38,6 +38,7 @@ public enum PacketType : ushort
     LoginRequest = 0x34EF, // 13551
     LoginResponse = 0x1FEA, // 8170
     LogoutRequest = 0x0AD0, // 2768
+    LogoutResponse = 0xB7B9, // 47033 CProtoMsg_client::recv_logout_r
     AdventureUploadRateGetRequest = 0x71CF, // 29135
     AdventureUploadRateGetResponse = 0x9061, // 36961
     AiDownloadListGetRequest = 0x1D3F, // 7487
