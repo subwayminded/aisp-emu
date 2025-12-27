@@ -23,11 +23,9 @@ public class CharaData(uint chara_id, uint character_id, string name)
         writer.Write(chara_id, character_id);
         writer.WriteFixedString(name, 37, "ASCII");//37
         writer.Write(Visual.ToBytes());
-        //writer.Write(new byte[6]);
-        //writer.Write(moveData.ToBytes());
-        writer.Write(0f, 0f, 0f, 0f);
         writer.Write(moveData.ToBytes());
-        writer.Write(new byte[2]);
+        writer.Write(moveData.ToBytes());
+        writer.Write(new byte[6]);
         writer.Write(new byte[8]);
         writer.Write((ushort)Equips.Count);
         foreach (var item in Equips)
