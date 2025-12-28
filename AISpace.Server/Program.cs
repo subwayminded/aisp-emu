@@ -32,7 +32,6 @@ internal class Program
         builder.Services.AddScoped<IWorldRepository, WorldRepository>();
         builder.Services.AddScoped<IUserSessionRepository, UserSessionRepository>();
         builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
-        builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
 
         builder.Services.AddSingleton<SharedState>();
         // Add all IPacketHandler classsess
