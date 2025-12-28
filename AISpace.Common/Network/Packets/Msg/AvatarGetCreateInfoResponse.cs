@@ -6,7 +6,7 @@ public class AvatarGetCreateInfoResponse : IPacket<AvatarGetCreateInfoResponse>
     private readonly List<uint> DefaultMaleBuilds = [1001011, 1001021, 1001031];
     private readonly List<byte> DefaultMaleFaces = [0, 1, 2, 3];
     private readonly List<uint> DefaultMaleHairStyles = [10920010, 10920020, 10920040];
-    private readonly List<byte> DefaultMaleHairColours = [ 0, 4, 1, 2, 3 ];
+    private readonly List<byte> DefaultMaleHairColours = [0, 4, 1, 2, 3];
     private readonly List<Game.ItemSlotInfo> DefaultMaleEquipment = [];
 
 

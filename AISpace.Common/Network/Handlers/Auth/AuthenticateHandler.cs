@@ -20,7 +20,7 @@ public class AuthenticateHandler(IUserRepository userRepo, ILogger<AuthenticateH
         _logger.LogInformation("Username: '{Username}'", req.Username);
 
         User? validUser = await userRepo.AuthenticateAsync(req.Username, req.Password);
-        if(validUser is null)
+        if (validUser is null)
         {
             _logger.LogWarning("Authentication failed for user '{Username}'", req.Username);
             var failResp = new AuthenticateFailureResponse(AuthResponseResult.InvalidCredentials);

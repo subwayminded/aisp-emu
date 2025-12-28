@@ -2,12 +2,12 @@
 
 namespace AISpace.Common.Game;
 
-public enum BloodType: uint
+public enum BloodType : uint
 {
-    A=0,
-    B=1,
-    AB=2,
-    O=3
+    A = 0,
+    B = 1,
+    AB = 2,
+    O = 3
 }
 public class CharaVisual(BloodType bloodType, byte month, byte day, uint gender, uint characterID, byte face, uint hairstyle)
 {
@@ -26,7 +26,7 @@ public class CharaVisual(BloodType bloodType, byte month, byte day, uint gender,
         if (buffer.Length != 19)
             throw new Exception("Invalid length");
         var reader = new PacketReader(buffer);
-        
+
         var bloodType = reader.ReadUInt();
         var month = reader.ReadByte();
         var day = reader.ReadByte();

@@ -18,7 +18,7 @@ public class AvatarGetDataHandler(ILogger<AvatarGetDataHandler> logger, ICharact
 
     public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
     {
-        if(!connection.IsAuthenticated)
+        if (!connection.IsAuthenticated)
             return;
 
         _logger.LogWarning("Client: {ClientId} requested AvatarGetData ", connection.Id);

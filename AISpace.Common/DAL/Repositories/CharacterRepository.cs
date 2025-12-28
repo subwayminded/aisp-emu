@@ -1,9 +1,7 @@
 ﻿using AISpace.Common.DAL.Entities;
 using AISpace.Common.Game;
-using AISpace.Common.Network.Handlers.Msg;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using NLog;
 
 namespace AISpace.Common.DAL.Repositories;
 
@@ -23,7 +21,8 @@ public sealed class CharacterRepository(MainContext db, ILogger<CharacterReposit
 
     public async Task<Character> CreateAsync(string name, int userId, uint modelId, BloodType bloodType, DateTime birthday, int Gender, uint faceType, uint hairStyle, CancellationToken ct = default)
     {
-        var c = new Character {
+        var c = new Character
+        {
             Name = name,
             UserId = userId,
             ModelId = modelId,

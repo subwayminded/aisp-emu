@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AISpace.Common.Game
+﻿namespace AISpace.Common.Game
 {
     public class ChannelManager
     {
@@ -12,7 +6,7 @@ namespace AISpace.Common.Game
 
         public ChannelManager()
         {
-            
+
         }
 
         public GameChannel GetChannel(int channelId)
