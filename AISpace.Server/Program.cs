@@ -75,12 +75,6 @@ internal class Program
 
 
         var host = builder.Build();
-        foreach (var svc in builder.Services)
-        {
-            var type = svc.ServiceType.ToString();
-            if (type.StartsWith("AI") && !type.Contains("IPacketHandler"))
-                Console.WriteLine($"Registered: {svc.ServiceType}");
-        }
         await host.RunAsync();
     }
 }
