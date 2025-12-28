@@ -4,6 +4,7 @@ using AISpace.Common.DAL.Entities;
 using Microsoft.Extensions.Logging;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Parameters;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AISpace.Common.Network;
 
@@ -12,7 +13,7 @@ public enum ClientState
     Init = 1,
     ConnectedToAuth = 2,
     ConnectedToMsg = 3,
-    ConnectedToArea = 4,
+    ConnectedToArea=4,
 }
 
 public class ClientConnection(Guid _Id, EndPoint _RemoteEndPoint, NetworkStream _ns, ILogger<ClientConnection> logger)

@@ -1,5 +1,4 @@
 ﻿namespace AISpace.Common.Network.Packets.Common;
-
 public class LoginResponse(AuthResponseResult Result) : IPacket<LoginResponse>
 {
     //Result: 0 = Success
