@@ -15,7 +15,7 @@ AI-Space Emulator is a fan-made server emulator for the discontinued Japanese MM
 
 ## Prerequisites
 
-- [.NET 9 SDK](https://dotnet.microsoft.com/en-us/download) for building and running the server projects.
+- [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download) for building and running the server projects.
 - Access to AISp@ce client metadata and information; see the [AI-Space archive](https://github.com/Tricon2-Elf/AI-Space) for historical game metadata.
 
 ## Building
