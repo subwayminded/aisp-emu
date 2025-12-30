@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System.Drawing;
+using System.Security.Cryptography;
 using System.Text;
 using Org.BouncyCastle.Math;
 
@@ -6,6 +7,64 @@ namespace AISpace.Common.Network;
 
 public class CryptoUtils
 {
+    private static readonly BigInteger RsaE = BigInteger.ValueOf(65537);
+
+    // Rust: BigUint::from_bytes_le(bytes)
+    private static BigInteger FromLeUnsigned(ReadOnlySpan<byte> le)
+    {
+        // BouncyCastle BigInteger expects big-endian magnitude
+        byte[] be = le.ToArray();
+        Array.Reverse(be);
+        return new BigInteger(1, be);
+    }
+
+    // Rust: to_bytes_le() then copy into [0..len] and pad zeros
+    private static byte[] ToFixedLe(BigInteger x, int size)
+    {
+        var be = x.ToByteArrayUnsigned(); // big-endian
+        var le = new byte[size];
+
+        int len = Math.Min(size, be.Length);
+        for (int i = 0; i < len; i++)
+            le[i] = be[be.Length - 1 - i]; // grab LSBs and output LE
+
+        return le;
+    }
+
+        // Rust create_key::<16>: random 16 bytes, key[15]=0, reject if m>=n (m is LE integer)
+    private static byte[] CreatePlainKeyLe16(BigInteger n)
+    {
+        Span<byte> key = stackalloc byte[16];
+
+        while (true)
+        {
+            RandomNumberGenerator.Fill(key);
+            key[15] = 0; // match Rust
+
+            var m = FromLeUnsigned(key); // interpret bytes as LE integer
+            if (m.CompareTo(n) >= 0)
+                continue;
+
+            return key.ToArray(); // plaintext key bytes (LE)
+        }
+    }
+
+    public static (byte[] PlainKeyLe, byte[] EncryptedKeyLe) CreateEncryptedKey(byte[] rsaNLe)
+    {
+        var n = FromLeUnsigned(rsaNLe);          // FIX: modulus is LE on the wire
+        var plainLe = CreatePlainKeyLe16(n);     // plaintext key bytes (LE)
+        var m = FromLeUnsigned(plainLe);         // m = key as LE integer
+        var c = m.ModPow(RsaE, n);               // c = m^e mod n
+        var cipherLe = ToFixedLe(c, 16);         // fixed 16 bytes LE
+
+        return (plainLe, cipherLe);
+    }
+
+
+
+
+
+
     public static string GenerateOTP()
     {
         byte[] seed = Guid.NewGuid().ToByteArray();
@@ -16,63 +75,5 @@ public class CryptoUtils
         string opt = sb.ToString(0, 20);
         return opt;
     }
-    public static byte[] CreateKey(int size, BigInteger maxVal)
-    {
-        byte[] keyData = new byte[size];
 
-        // Fill with cryptographically strong random bytes
-        using (var rng = RandomNumberGenerator.Create())
-        {
-            rng.GetBytes(keyData);
-        }
-
-        // Ensure it's positive (BigInteger interprets byte[] as little-endian signed)
-        byte[] unsignedKey = new byte[size + 1];
-        Buffer.BlockCopy(keyData, 0, unsignedKey, 0, size);
-
-        BigInteger candidate = new BigInteger(unsignedKey);
-
-        // Reduce by modulus (introduces tiny bias if maxVal doesn't divide evenly)
-        BigInteger reduced = candidate.Remainder(maxVal);
-        if (reduced.SignValue < 0) reduced = reduced.Add(maxVal); // Just in case
-
-        byte[] result = reduced.ToByteArrayUnsigned();
-        if (result.Length < size)
-            Array.Resize(ref result, size);
-        else if (result.Length > size)
-            Array.Resize(ref result, size);
-        Array.Reverse(result);
-
-        return result;
-    }
-
-    public static byte[] CreateCamelliaKey(byte[] buffer)
-    {
-        byte[] nLength = new byte[16];
-
-        Array.Copy(buffer, nLength, 16);
-        Array.Reverse(nLength);
-        var n = new BigInteger(1, nLength.Reverse().ToArray());
-        var key = CryptoUtils.CreateKey(16, n);
-
-
-
-        var camelliaInt = new BigInteger(1, key.Reverse().ToArray());
-        BigInteger E = new BigInteger("65537"); // RSA e
-        var encS2C = camelliaInt.ModPow(E, n);
-
-        byte[] camelliaKey = ToFixedLe(encS2C, 16);
-        return camelliaKey;
-    }
-
-    // Helper: encode BigInteger -> fixed-size LE
-    private static byte[] ToFixedLe(BigInteger bi, int size)
-    {
-        var be = bi.ToByteArrayUnsigned(); // big-endian, no sign
-        var le = new byte[size];
-        int copy = Math.Min(be.Length, size);
-        for (int i = 0; i < copy; i++)
-            le[i] = be[be.Length - 1 - i]; // reverse
-        return le;
-    }
 }
