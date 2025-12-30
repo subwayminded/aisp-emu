@@ -1,8 +1,5 @@
-﻿using System;
-using System.Buffers.Binary;
-using System.Collections.Generic;
+﻿using System.Buffers.Binary;
 using System.Numerics;
-using System.Text;
 
 namespace AISpace.Common.Network.Crypto;
 
@@ -142,6 +139,8 @@ public sealed class VCECamellia128
 
         WriteU64BE(block16.Slice(0, 8), d2);
         WriteU64BE(block16.Slice(8, 8), d1);
+
+        IncK0();
     }
 
     /// <summary>
@@ -176,6 +175,8 @@ public sealed class VCECamellia128
 
         WriteU64BE(block16.Slice(0, 8), d2);
         WriteU64BE(block16.Slice(8, 8), d1);
+
+        IncK0();
     }
 
     /// <summary>
@@ -183,7 +184,6 @@ public sealed class VCECamellia128
     /// </summary>
     public void IncK0()
     {
-        Console.WriteLine("Doing the Ghetto");
         uint hi = (uint)(_k[0] >> 32);
         uint lo = (uint)_k[0];
         hi++;
