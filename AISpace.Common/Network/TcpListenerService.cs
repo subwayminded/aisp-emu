@@ -1,9 +1,13 @@
-﻿using System.Buffers.Binary;
+﻿using System;
+using System.Buffers.Binary;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Net.Sockets;
 using System.Threading.Channels;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Org.BouncyCastle.Math;
+using Org.BouncyCastle.Utilities.Encoders;
 
 namespace AISpace.Common.Network;
 
@@ -18,7 +22,7 @@ public class TcpListenerService(ILogger<TcpListenerService> logger,
 {
     private readonly TcpListener _tcpListener = new(System.Net.IPAddress.Parse("0.0.0.0"), port);
     private readonly CancellationTokenSource _cts = new();
-    private readonly bool Encrypted = false;
+    private readonly bool Encrypted = true;
 
     public ChannelReader<Packet> PacketReader => channel.Reader;
 
@@ -52,84 +56,68 @@ public class TcpListenerService(ILogger<TcpListenerService> logger,
 
     private async Task HandleClientKeyExchangeAsync(ClientConnection context)
     {
-        int RsaSize = 16;
-        context.CurrentState = ClientState.Init;
-        logger.LogInformation("New Client. Starting Key Exchange");
-        //Do key stuff
-        using var stream = context.Stream;
-        var buffer = new byte[4096];
-        logger.LogInformation("Reading client RSA public key");
-        // 1) read 16-byte RSA modulus from client
-        int read = 0;
-        while (read < RsaSize)
-        {
-            int r = await stream.ReadAsync(buffer.AsMemory(read, RsaSize - read), _cts.Token);
-            if (r == 0) return; // client closed
-            read += r;
-        }
-        byte[] camelliaKey = CryptoUtils.CreateCamelliaKey(buffer);
-        context.SetCamelliaKey(camelliaKey);
-        logger.LogInformation("Sending new Camellia key back to client");
+        const int RsaSize = 16;
 
-        await context.SendRawAsync([.. camelliaKey, .. camelliaKey]);
-        logger.LogInformation("Handing over to normal HandleClient");
+        logger.LogInformation("New Client. Starting Key Exchange");
+        logger.LogInformation("Reading client RSA public key (N, 16 bytes LE)");
+
+        byte[] rsaNLe = new byte[RsaSize];
+        await ReadExactAsync(context.Stream, rsaNLe, _cts.Token);
+
+        // Match Rust: two keys (can be same if you want, but do it correctly)
+        var (s2cPlain, s2cEnc) = CryptoUtils.CreateEncryptedKey(rsaNLe);
+        var (c2sPlain, c2sEnc) = CryptoUtils.CreateEncryptedKey(rsaNLe);
+
+        // IMPORTANT: store PLAINTEXT keys locally (Rust initializes with plaintext)
+        context.SetCamelliaKeys(s2cPlain, c2sPlain);
+
+        // IMPORTANT: send CIPHERTEXT keys to client (Rust sends encrypted versions)
+        await context.SendRawAsync([.. s2cEnc, .. c2sEnc]);
+
         _ = HandleClientAsync(context);
     }
+
+
+
 
     private async Task HandleClientAsync(ClientConnection context)
     {
         logger.LogInformation("{name} Handling new client {Id}", Name, context.Id);
-        using var stream = context.Stream;
-        var buffer = new byte[4096];
 
+        var stream = context.Stream;
+        var header = new byte[4];
         try
         {
             while (!_cts.Token.IsCancellationRequested)
             {
-                //try
-                //{
-                    int read = await stream.ReadAsync(buffer.AsMemory(0, 1), _cts.Token);
+                await ReadExactAsync(stream, header, _cts.Token);
+                int msgSize = (int)BinaryPrimitives.ReadUInt32LittleEndian(header);
+                logger.LogInformation("Datasize1: {size}", msgSize+4);
+                logger.LogInformation("Datasize2: {size}", msgSize);
 
-                    //If data is empty then break
-                    if (read == 0)
-                        break;
+                if (msgSize <= 0)
+                    continue;
 
-
-                    int packetLength = buffer[0];
-                    if (packetLength < 2)
-                        continue;
-
-                    await ReadExactAsync(stream, buffer.AsMemory(0, 2), _cts.Token);
-                    ushort typeShort = BinaryPrimitives.ReadUInt16LittleEndian(buffer.AsSpan(0, 2));
-                    logger.LogInformation("TypeShort: {type}", typeShort);
-                    var type = (PacketType)typeShort;
-                    logger.LogInformation("EnumType: {type}", type);
-                    int payloadLength = packetLength - 2;//2 due to packettype being 2 bytes
-
-                    byte[] payload = new byte[payloadLength];
-
-                    if (payloadLength > 0)
-                        await ReadExactAsync(stream, payload, _cts.Token);
-
-                var hex = BitConverter.ToString(payload).Replace("-", " ");
-                logger.LogInformation("Recieving packet {PacketType} ({Length} bytes): {Hex}", type, payload.Length, hex);
-                //_logger.LogInformation("{name} Writing message to Channel {Id}", name, context.Id);
-                //Need to check if PacketType is supported. If not send a logout?
-                channel.Writer.TryWrite(new Packet(context, type, payload, typeShort));
-                //}
-                //catch (Exception ex)
-                //{
-                //    _logger.LogError("Error in processing packet {msg}, {type}", ex.Message, typeof(Exception));
-                //}
+                // 2) Read padded ciphertext
+                byte[] cipher = new byte[msgSize];
+                await ReadExactAsync(stream, cipher, _cts.Token);
+                for (int offset = 0; offset < msgSize; offset += 16)
+                    context.DecryptBlock(cipher.AsSpan(offset, 16));
+                var plainBuffer = cipher[2..msgSize];
+                logger.LogInformation("Datasize3: {size}", (int)BinaryPrimitives.ReadUInt16LittleEndian(cipher.AsSpan(0,2)));
+                logger.LogInformation("Datasize4: {size}", plainBuffer.Length);
+                ushort typeShort = BinaryPrimitives.ReadUInt16LittleEndian(plainBuffer.AsSpan(0, 2));
+                var payload = plainBuffer.AsSpan(2, plainBuffer.Length - 2);
+                var type = (PacketType)typeShort;
+                logger.LogInformation("Recieving packet {PacketType} ({Length} bytes): {Hex}", type, payload.Length, BitConverter.ToString(payload.ToArray()));
+                logger.LogInformation("Recieving Raw packet {PacketType} ({Length} bytes): {Hex}", type, payload.Length, BitConverter.ToString(plainBuffer.ToArray()));
+                channel.Writer.TryWrite(new Packet(context, type, payload.ToArray(), typeShort));
             }
         }
         catch (Exception ex)
         {
-            logger.LogError("Client {Id} error: {Message}", context.Id, ex.Message);
+            logger.LogError("Err {ex}", ex);
         }
-
-        context.Stream.Close();
-        logger.LogInformation("Client disconnected: {RemoteEndPoint} ({Id})", context.RemoteEndPoint, context.Id);
     }
 
     private static async Task ReadExactAsync(NetworkStream stream, Memory<byte> buffer, CancellationToken ct)
