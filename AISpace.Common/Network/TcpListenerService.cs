@@ -2,6 +2,8 @@
 using System.Collections.Concurrent;
 using System.Net.Sockets;
 using System.Threading.Channels;
+using AISpace.Common.Network.Crypto;
+using AISpace.Common.Network.Packets;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 

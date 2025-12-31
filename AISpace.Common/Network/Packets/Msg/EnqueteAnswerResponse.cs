@@ -1,5 +1,4 @@
-﻿
-namespace AISpace.Common.Network.Packets.Msg;
+﻿namespace AISpace.Common.Network.Packets.Msg;
 
 public class EnqueteAnswerResponse(uint result) : IPacket<EnqueteAnswerResponse>
 {

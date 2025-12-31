@@ -2,7 +2,7 @@
 using System.Text;
 using System.Numerics;
 
-namespace AISpace.Common.Network;
+namespace AISpace.Common.Network.Crypto;
 
 public class CryptoUtils
 {

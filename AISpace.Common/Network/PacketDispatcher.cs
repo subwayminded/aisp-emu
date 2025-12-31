@@ -1,4 +1,6 @@
-﻿namespace AISpace.Common.Network;
+﻿using AISpace.Common.Network.Handlers;
+
+namespace AISpace.Common.Network;
 
 public class PacketDispatcher
 {

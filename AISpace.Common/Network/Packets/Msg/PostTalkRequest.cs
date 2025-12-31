@@ -1,5 +1,4 @@
-﻿
-namespace AISpace.Common.Network.Packets;
+﻿namespace AISpace.Common.Network.Packets;
 
 public class PostTalkRequest(uint messageID, uint distID, string message, uint balloonID) : IPacket<PostTalkRequest>
 {

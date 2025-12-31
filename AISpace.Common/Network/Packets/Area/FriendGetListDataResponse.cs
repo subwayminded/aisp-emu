@@ -1,5 +1,4 @@
-﻿
-namespace AISpace.Common.Network.Packets;
+﻿namespace AISpace.Common.Network.Packets;
 
 public class FriendGetListDataResponse : IPacket<FriendGetListDataResponse>
 {

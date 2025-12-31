@@ -1,5 +1,6 @@
 ﻿using AISpace.Common.DAL.Entities;
 using AISpace.Common.DAL.Repositories;
+using AISpace.Common.Network.Crypto;
 using AISpace.Common.Network.Packets.Auth;
 using Microsoft.Extensions.Logging;
 

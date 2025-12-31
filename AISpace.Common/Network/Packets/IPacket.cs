@@ -1,4 +1,4 @@
-﻿namespace AISpace.Common.Network;
+﻿namespace AISpace.Common.Network.Packets;
 
 
 public interface IPacket<T> where T : IPacket<T>

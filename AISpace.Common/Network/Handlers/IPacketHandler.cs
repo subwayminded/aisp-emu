@@ -1,4 +1,4 @@
-﻿namespace AISpace.Common.Network;
+﻿namespace AISpace.Common.Network.Handlers;
 
 [Flags]
 public enum MessageDomain

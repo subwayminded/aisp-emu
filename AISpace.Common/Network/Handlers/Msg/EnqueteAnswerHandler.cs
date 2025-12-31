@@ -1,5 +1,4 @@
-﻿
-using AISpace.Common.Network.Packets.Msg;
+﻿using AISpace.Common.Network.Packets.Msg;
 
 namespace AISpace.Common.Network.Handlers.Msg;
 

@@ -7,6 +7,8 @@ global using Microsoft.Extensions.Hosting;
 global using Microsoft.Extensions.Logging;
 using System.Text;
 using AISpace.Common.Game;
+using AISpace.Common.Network.Handlers;
+using AISpace.Common.Network.Packets;
 using Microsoft.Extensions.DependencyInjection;
 using NLog.Extensions.Logging;
 
