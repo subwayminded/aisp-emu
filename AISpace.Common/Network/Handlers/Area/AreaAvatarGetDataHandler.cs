@@ -17,12 +17,12 @@ public class AreaAvatarGetDataHandler(ILogger<AreaAvatarGetDataHandler> logger, 
 
     public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
     {
-        if (!connection.IsAuthenticated)
+        if (!connection.IsAuthenticated || connection.clientUser == null || connection.clientUser.Characters.First() == null)
             return;
         _logger.LogInformation("Received AvatarGetDataRequest from Client: {Id}, IsAuthed: {auth}", connection.Id, connection.IsAuthenticated);
         _logger.LogInformation("Received AvatarGetDataRequest from Client: {Id}", connection.Id);
 
-        var cha = connection.clientUser?.Characters.First();
+        var cha = connection.clientUser.Characters.First();
         _logger.LogInformation("Processing AvatarGetDataRequest for Character: {CharacterName} (ID: {CharacterId})", cha?.Name, cha?.Id);
         //TODO: Figure out ID's. Maybe merge CharacterData with AvatarData/CharaData?
         var charaData = new CharaData(0, 0, cha.Name);
