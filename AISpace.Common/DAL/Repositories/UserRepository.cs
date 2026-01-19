@@ -9,7 +9,7 @@ public class UserRepository(MainContext db) : IUserRepository
     private readonly MainContext _db = db;
     public async Task<User?> AuthenticateAsync(string username, string password)
     {
-        var user = await db.Users
+        var user = await _db.Users
             .Include(u => u.Characters)
                 .ThenInclude(c => c.Inventory)
                     .ThenInclude(i => i.Item)
@@ -27,8 +27,8 @@ public class UserRepository(MainContext db) : IUserRepository
         var user = new User { Username = username };
         user.SetPassword(password);
 
-        db.Users.Add(user);
-        await db.SaveChangesAsync();
+        _db.Users.Add(user);
+        await _db.SaveChangesAsync();
     }
 
     public async Task<User?> GetByUsernameAsync(string username)
