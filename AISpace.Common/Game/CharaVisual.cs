@@ -9,8 +9,15 @@ public enum BloodType : uint
     AB = 2,
     O = 3
 }
-public class CharaVisual(BloodType BloodType, byte Month, byte Day, uint Gender, uint CharacterID, byte Face, uint Hairstyle)
+public class CharaVisual(BloodType bloodType, byte month, byte day, uint gender, uint characterID, byte face, uint hairstyle)
 {
+    public BloodType BloodType = bloodType;//1=A, 2=B
+    public byte Month = month;
+    public byte Day = day;
+    public uint Gender = gender;
+    public uint CharacterID = characterID;
+    public byte Face = face;
+    public uint Hairstyle = hairstyle;
     public DateTime Birthdate => new(DateTime.Now.Year, Month, Day);
 
 
@@ -27,8 +34,8 @@ public class CharaVisual(BloodType BloodType, byte Month, byte Day, uint Gender,
         var characterID = reader.ReadUInt();
         var face = reader.ReadByte();
         var hairstyle = reader.ReadUInt();
-        var visual = new CharaVisual((BloodType)bloodType, month, day, gender, characterID, face, hairstyle);
-        return visual;
+        var newCV = new CharaVisual((BloodType)bloodType, month, day, gender, characterID, face, hairstyle);
+        return newCV;
     }
     public byte[] ToBytes()
     {
@@ -45,6 +52,6 @@ public class CharaVisual(BloodType BloodType, byte Month, byte Day, uint Gender,
 
     public override string ToString()
     {
-        return $"[CharaVisual] BloodType: {BloodType}, Month: {Month}, Day: {Day}, Gender: {Gender}, CharacterID: {CharacterID}, Face: {Face}, Hairstyle: {Hairstyle}";
+        return $"[CharaVisual] BloodType: {BloodType}, Month: {Month}, Day: {day}, Gender: {Gender}, CharacterID: {CharacterID}, Face: {Face}, Hairstyle: {Hairstyle}";
     }
 }
