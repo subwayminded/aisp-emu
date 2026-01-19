@@ -23,11 +23,11 @@ public class AvatarCreateHandler(ILogger<AvatarCreateHandler> logger, ICharacter
         _logger.LogInformation("createRequest: {request}", createRequest.ToString());
 
         //TODO: Send Logout request?
-        if (!connection.IsAuthenticated)
+        if (!connection.IsAuthenticated || connection.clientUser == null)
             return;
 
         Character newChar = await charRepo.CreateAsync(createRequest.AvatarName,
-            connection.clientUser!.Id,
+            connection.clientUser.Id,
             createRequest.modelId,
             createRequest.visual.BloodType,
             createRequest.visual.Birthdate,
@@ -36,30 +36,21 @@ public class AvatarCreateHandler(ILogger<AvatarCreateHandler> logger, ICharacter
             createRequest.visual.Hairstyle, ct);
 
         //Add Clothing
-        //DefaultMaleEquipment.Add(new Game.ItemSlotInfo(10100220, 0));//Shirt
-        //DefaultMaleEquipment.Add(new Game.ItemSlotInfo(10200100, 0));//Pants
-        //DefaultMaleEquipment.Add(new Game.ItemSlotInfo(10400030, 0));//Socks
-        //DefaultMaleEquipment.Add(new Game.ItemSlotInfo(10500070, 0));//Shoes
-
-        //DefaultFemaleEquipment.Add(new Game.ItemSlotInfo(10100060, 0));//Shirt
-        //DefaultFemaleEquipment.Add(new Game.ItemSlotInfo(10200090, 0));//Shorts
-        //DefaultFemaleEquipment.Add(new Game.ItemSlotInfo(10400000, 0));//Socks
-        //DefaultFemaleEquipment.Add(new Game.ItemSlotInfo(10500010, 0));//Shoes
         if ((int)createRequest.visual.Gender == 1)
         {
             //Male
-            await charRepo.EquipAsync(newChar.Id, 0, 10100220, ct);
-            await charRepo.EquipAsync(newChar.Id, 1, 10200100, ct);
-            await charRepo.EquipAsync(newChar.Id, 2, 10400030, ct);
-            await charRepo.EquipAsync(newChar.Id, 3, 10500070, ct);
+            await charRepo.EquipAsync(newChar.Id, 0, 10100220, ct);//Shirt
+            await charRepo.EquipAsync(newChar.Id, 1, 10200100, ct);//Pants
+            await charRepo.EquipAsync(newChar.Id, 2, 10400030, ct);//Socks
+            await charRepo.EquipAsync(newChar.Id, 3, 10500070, ct);//Shoes
         }
         else
         {
             //Female
-            await charRepo.EquipAsync(newChar.Id, 0, 10100060, ct);
-            await charRepo.EquipAsync(newChar.Id, 1, 10200090, ct);
-            await charRepo.EquipAsync(newChar.Id, 2, 10400000, ct);
-            await charRepo.EquipAsync(newChar.Id, 3, 10500010, ct);
+            await charRepo.EquipAsync(newChar.Id, 0, 10100060, ct);//Shirt
+            await charRepo.EquipAsync(newChar.Id, 1, 10200090, ct);//Pants
+            await charRepo.EquipAsync(newChar.Id, 2, 10400000, ct);//Socks
+            await charRepo.EquipAsync(newChar.Id, 3, 10500010, ct);//Shoes
         }
 
             //TODO: do something with the avatar creation request
