@@ -52,6 +52,6 @@ public class CharaVisual(BloodType bloodType, byte month, byte day, uint gender,
 
     public override string ToString()
     {
-        return $"[CharaVisual] BloodType: {BloodType}, Month: {Month}, Day: {day}, Gender: {Gender}, CharacterID: {CharacterID}, Face: {Face}, Hairstyle: {Hairstyle}";
+        return $"[CharaVisual] BloodType: {BloodType}, Month: {Month}, Day: {Day}, Gender: {Gender}, CharacterID: {CharacterID}, Face: {Face}, Hairstyle: {Hairstyle}";
     }
 }
