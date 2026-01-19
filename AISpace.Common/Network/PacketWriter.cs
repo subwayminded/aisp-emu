@@ -1,4 +1,5 @@
-﻿using System.Buffers;
+﻿using System;
+using System.Buffers;
 using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -10,6 +11,21 @@ public class PacketWriter
     private readonly MemoryStream _stream = new();
 
     public byte[] ToBytes() => _stream.ToArray();
+
+    public void Reset()
+    {
+        _stream.SetLength(0);
+        _stream.Position = 0;
+    }
+
+    public ReadOnlyMemory<byte> WrittenMemory
+    {
+        get
+        {
+            _stream.TryGetBuffer(out var segment);
+            return segment.AsMemory(0, (int)_stream.Length);
+        }
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void WriteLE<T>(T value, Action<Span<byte>, T> write)
