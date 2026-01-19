@@ -21,7 +21,7 @@ public class PostTalkRequest(uint messageID, uint distID, string message, uint b
 
     public byte[] ToBytes()
     {
-        using var writer = new PacketWriter();
+        var writer = new PacketWriter();
         writer.Write(MessageID);
         writer.Write(DistID);
         writer.Write(Message);

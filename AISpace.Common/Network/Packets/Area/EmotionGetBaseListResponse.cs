@@ -9,7 +9,7 @@ public class EmotionGetBaseListResponse(uint Result = 0) : IPacket<EmotionGetBas
 
     public byte[] ToBytes()
     {
-        using var writer = new PacketWriter();
+        var writer = new PacketWriter();
         writer.Write(Result);
         writer.Write((uint)0);//Array length?
         return writer.ToBytes();

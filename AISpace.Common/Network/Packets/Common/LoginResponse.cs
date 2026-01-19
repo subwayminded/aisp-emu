@@ -10,7 +10,7 @@ public class LoginResponse(AuthResponseResult Result) : IPacket<LoginResponse>
 
     public byte[] ToBytes()
     {
-        using var writer = new PacketWriter();
+        var writer = new PacketWriter();
         writer.Write((uint)Result);
         return writer.ToBytes();
     }

@@ -11,7 +11,7 @@ public class AvatarNotifyData(uint Result, AvatarData avatarData) : IPacket<Avat
 
     public byte[] ToBytes()
     {
-        using var writer = new PacketWriter();
+        var writer = new PacketWriter();
         writer.Write(Result);
         writer.Write(avatarData.ToBytes());
         return writer.ToBytes();

@@ -13,7 +13,7 @@ public class ChannelSelectResponse(uint result, Game.ServerInfo serverInfo, uint
 
     public byte[] ToBytes()
     {
-        using var writer = new PacketWriter();
+        var writer = new PacketWriter();
         writer.Write(Result);
         writer.Write(serverInfo.ToBytes());
         writer.Write(MapID);

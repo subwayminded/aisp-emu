@@ -9,7 +9,7 @@ public class EnqueteAnswerResponse(uint result) : IPacket<EnqueteAnswerResponse>
 
     public byte[] ToBytes()
     {
-        using var writer = new PacketWriter();
+        var writer = new PacketWriter();
         writer.Write(result);
         return writer.ToBytes();
     }

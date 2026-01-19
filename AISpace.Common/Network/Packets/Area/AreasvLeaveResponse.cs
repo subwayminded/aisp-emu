@@ -9,7 +9,7 @@ public class AreasvLeaveResponse(uint Result = 0) : IPacket<AreasvLeaveResponse>
 
     public byte[] ToBytes()
     {
-        using var writer = new PacketWriter();
+        var writer = new PacketWriter();
         writer.Write(Result);
         return writer.ToBytes();
     }

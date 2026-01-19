@@ -10,7 +10,7 @@ public class MailBoxGetDataHandler : IPacketHandler
 
     public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
     {
-        using PacketWriter writer = new();
+        PacketWriter writer = new();
         writer.Write((uint)0); // Result
         writer.Write((uint)0); // mail
         await connection.SendAsync(ResponseType, writer.ToBytes(), ct);

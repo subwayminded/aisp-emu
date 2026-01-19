@@ -9,7 +9,7 @@ public class AvatarSelectResponse(uint result) : IPacket<AvatarSelectResponse>
 
     public byte[] ToBytes()
     {
-        using var writer = new PacketWriter();
+        var writer = new PacketWriter();
         writer.Write(result);
         return writer.ToBytes();
     }

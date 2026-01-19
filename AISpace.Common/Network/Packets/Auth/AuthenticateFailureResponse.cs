@@ -11,7 +11,7 @@ public class AuthenticateFailureResponse(AuthResponseResult Result) : IPacket<Au
 
     public byte[] ToBytes()
     {
-        using var writer = new PacketWriter();
+        var writer = new PacketWriter();
         writer.Write((uint)Result);
         return writer.ToBytes();
     }

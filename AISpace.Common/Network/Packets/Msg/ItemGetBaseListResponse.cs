@@ -36,8 +36,9 @@ public class ItemGetBaseListResponse : IPacket<ItemGetBaseListResponse>
 
     public byte[] ToBytes()
     {
-        using var writer = new PacketWriter();
-        writer.Write(result, (uint)Items.Count);
+        var writer = new PacketWriter();
+        writer.Write(result);
+        writer.Write((uint)Items.Count);
         foreach (var item in Items)
             writer.Write(item.ToBytes());
         return writer.ToBytes();

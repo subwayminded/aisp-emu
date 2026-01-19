@@ -12,7 +12,7 @@ public class ChannelListGetResponse(uint result, List<Game.ChannelInfo> channels
 
     public byte[] ToBytes()
     {
-        using var writer = new PacketWriter();
+        var writer = new PacketWriter();
         writer.Write(Result);
         writer.Write((uint)Channels.Count);
         foreach (var channel in Channels)

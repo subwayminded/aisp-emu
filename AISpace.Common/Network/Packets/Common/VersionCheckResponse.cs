@@ -9,8 +9,11 @@ public class VersionCheckResponse(uint Result, uint Major, uint Minor, uint Ver)
 
     public byte[] ToBytes()
     {
-        using var writer = new PacketWriter();
-        writer.Write(Result, Major, Minor, Ver);
+        var writer = new PacketWriter();
+        writer.Write(Result);
+        writer.Write(Major);
+        writer.Write(Minor);
+        writer.Write(Ver);
         return writer.ToBytes();
     }
 }

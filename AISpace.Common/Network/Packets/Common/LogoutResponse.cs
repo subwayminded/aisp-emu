@@ -9,7 +9,7 @@ internal class LogoutResponse : IPacket<LogoutResponse>
 
     public byte[] ToBytes()
     {
-        using var writer = new PacketWriter();
+        var writer = new PacketWriter();
         writer.Write(0);
         return writer.ToBytes();
     }

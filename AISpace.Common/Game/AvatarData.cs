@@ -7,7 +7,7 @@ public class AvatarData(uint avatar_id, CharaData chara)
 
     public byte[] ToBytes()
     {
-        using Network.PacketWriter writer = new();
+        Network.PacketWriter writer = new();
         writer.Write(avatar_id);
         writer.Write(chara.ToBytes());
         writer.Write((ushort)8);

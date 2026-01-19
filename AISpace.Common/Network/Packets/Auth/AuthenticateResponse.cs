@@ -11,7 +11,7 @@ public class AuthenticateResponse(uint id) : IPacket<AuthenticateResponse>
 
     public byte[] ToBytes()
     {
-        using var writer = new PacketWriter();
+        var writer = new PacketWriter();
         writer.Write(id);
         return writer.ToBytes();
     }

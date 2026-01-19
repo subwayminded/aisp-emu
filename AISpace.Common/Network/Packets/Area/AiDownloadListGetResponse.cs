@@ -9,7 +9,7 @@ public class AiDownloadListGetResponse(uint Result = 0, uint Downs = 0) : IPacke
 
     public byte[] ToBytes()
     {
-        using var writer = new PacketWriter();
+        var writer = new PacketWriter();
         writer.Write(Result);
         writer.Write(Downs);
         return writer.ToBytes();

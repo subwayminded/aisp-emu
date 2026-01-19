@@ -14,7 +14,7 @@ public class WorldSelectResponse(uint result, string ipAddress, ushort port, str
 
     public byte[] ToBytes()
     {
-        using var writer = new PacketWriter();
+        var writer = new PacketWriter();
         writer.Write(result);//Result and World count
         writer.Write(worldCount);
         writer.Write(Port);

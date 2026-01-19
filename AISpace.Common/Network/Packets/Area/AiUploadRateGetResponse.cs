@@ -9,7 +9,7 @@ public class AiUploadRateGetResponse(uint Result = 1) : IPacket<AiUploadRateGetR
 
     public byte[] ToBytes()
     {
-        using var writer = new PacketWriter();
+        var writer = new PacketWriter();
         writer.Write(Result);
         return writer.ToBytes();
     }

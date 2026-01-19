@@ -7,7 +7,7 @@ public class ItemSlotInfo(uint id, uint socket)
 
     public byte[] ToBytes()
     {
-        using var writer = new Network.PacketWriter();
+        var writer = new Network.PacketWriter();
         writer.Write(Id);
         writer.Write(Socket);
         return writer.ToBytes();

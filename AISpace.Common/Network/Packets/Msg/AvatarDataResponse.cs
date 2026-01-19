@@ -1,6 +1,6 @@
 ﻿namespace AISpace.Common.Network.Packets.Msg;
 
-public class AvatarDataResponse(uint result, string name, uint modelId, uint islandID, uint slotId) : IPacket<AvatarDataResponse>
+public class AvatarDataResponse(uint result, string name, uint modelId, uint islandId, uint slotId) : IPacket<AvatarDataResponse>
 {
     public Game.CharaVisual Visual = new(Game.BloodType.A, 1, 1, 1, 2, 0, 0);
     public List<Game.ItemSlotInfo> Equips = new(30);
@@ -29,7 +29,8 @@ public class AvatarDataResponse(uint result, string name, uint modelId, uint isl
         writer.Write(name);
         writer.Write(modelId);
         writer.Write(Visual.ToBytes());
-        writer.Write(islandID, slotId);
+        writer.Write(islandId);
+        writer.Write(slotId);
         foreach (var equip in _equips)
            writer.Write(equip.ToBytes());
         return writer.ToBytes();

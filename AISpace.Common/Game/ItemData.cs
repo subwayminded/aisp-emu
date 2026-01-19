@@ -42,7 +42,7 @@ public class ItemData
 
     public byte[] ToBytes()
     {
-        using var writer = new Network.PacketWriter();
+        var writer = new Network.PacketWriter();
         writer.Write(Key);
         writer.Write(SortedListPriority);
         writer.Write(ItemId);

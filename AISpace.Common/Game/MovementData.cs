@@ -18,7 +18,9 @@ public class MovementData(float x, float y, float z, sbyte rotation, MovementTyp
     public byte[] ToBytes()
     {
         var writer = new Network.PacketWriter();
-        writer.Write(X, Y, Z);
+        writer.Write(X);
+        writer.Write(Y);
+        writer.Write(Z);
         writer.Write(Rotation);
         writer.Write((byte)Animation);
         return writer.ToBytes();

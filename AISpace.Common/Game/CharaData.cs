@@ -19,8 +19,9 @@ public class CharaData(uint chara_id, uint character_id, string name)
     {
         while (Equips.Count < 30)
             AddEquip(0, 0);
-        using var writer = new Network.PacketWriter();
-        writer.Write(chara_id, character_id);
+        var writer = new Network.PacketWriter();
+        writer.Write(chara_id);
+        writer.Write(character_id);
         writer.WriteFixedString(name, 37, "ASCII");//37
         writer.Write(Visual.ToBytes());
         writer.Write(moveData.ToBytes());

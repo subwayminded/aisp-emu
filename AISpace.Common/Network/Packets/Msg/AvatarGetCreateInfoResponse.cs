@@ -20,8 +20,6 @@ public class AvatarGetCreateInfoResponse : IPacket<AvatarGetCreateInfoResponse>
     {
         throw new NotImplementedException();
     }
-    //AvatarCreateRequest
-    //43-68-61-72-6B-69-00-1B-4A-0F-00-04-00-00-00-01-01-02-00-00-00-01-00-00-00-03-7A-C7-A6-00-00-00-00-00
 
     public byte[] ToBytes()
     {
@@ -36,38 +34,56 @@ public class AvatarGetCreateInfoResponse : IPacket<AvatarGetCreateInfoResponse>
         DefaultFemaleEquipment.Add(new Game.ItemSlotInfo(10500010, 0));//Shoes
         var writer = new PacketWriter();
 
+        //DefaultMaleBuilds
         writer.Write((uint)DefaultMaleBuilds.Count);
-        writer.Write(DefaultMaleBuilds.ToArray());
+        foreach (var value in DefaultMaleBuilds)
+            writer.Write(value);
 
+        //DefaultMaleFaces
         writer.Write((uint)DefaultMaleFaces.Count);
-        writer.Write(DefaultMaleFaces.ToArray());
+        foreach (var value in DefaultMaleFaces)
+            writer.Write(value);
 
+        //DefaultMaleHairStyles
         writer.Write((uint)DefaultMaleHairStyles.Count);
-        writer.Write(DefaultMaleHairStyles.ToArray());
+        foreach (var value in DefaultMaleHairStyles)
+            writer.Write(value);
 
+        //DefaultMaleHairColours
         writer.Write((uint)DefaultMaleHairColours.Count);
-        writer.Write(DefaultMaleHairColours.ToArray());
+        foreach (var value in DefaultMaleHairColours)
+            writer.Write(value);
 
+        //DefaultMaleEquipment
         writer.Write((uint)DefaultMaleEquipment.Count);
-
         foreach (var eq in DefaultMaleEquipment)
             writer.Write(eq.ToBytes());
 
+        //DefaultFemaleBuilds
         writer.Write((uint)DefaultFemaleBuilds.Count);
-        writer.Write(DefaultFemaleBuilds.ToArray());
+        foreach (var value in DefaultFemaleBuilds)
+            writer.Write(value);
 
+        //DefaultFemaleFaces
         writer.Write((uint)DefaultFemaleFaces.Count);
-        writer.Write(DefaultFemaleFaces.ToArray());
+        foreach (var value in DefaultFemaleFaces)
+            writer.Write(value);
 
+        //DefaultFemaleHairStyles
         writer.Write((uint)DefaultFemaleHairStyles.Count);
-        writer.Write(DefaultFemaleHairStyles.ToArray());
+        foreach (var value in DefaultFemaleHairStyles)
+            writer.Write(value);
 
+        //DefaultFemaleHairColours
         writer.Write((uint)DefaultFemaleHairColours.Count);
-        writer.Write(DefaultFemaleHairColours.ToArray());
+        foreach (var value in DefaultFemaleHairColours)
+            writer.Write(value);
 
+        //DefaultFemaleEquipment
         writer.Write((uint)DefaultFemaleEquipment.Count);
         foreach (var eq in DefaultFemaleEquipment)
             writer.Write(eq.ToBytes());
+
         return writer.ToBytes();
     }
 }
