@@ -6,9 +6,9 @@ namespace AISpace.Common.Network.Handlers.Msg;
 
 public class EnqueteGetHandler : IPacketHandler
 {
-    public PacketType RequestType => PacketType.Msg_EnqueteGetRequest;
+    public PacketType RequestType => PacketType.EnqueteGetRequest;
 
-    public PacketType ResponseType => PacketType.Msg_EnqueteGetResponse;
+    public PacketType ResponseType => PacketType.EnqueteGetResponse;
 
     public MessageDomain Domains => MessageDomain.Msg;
 

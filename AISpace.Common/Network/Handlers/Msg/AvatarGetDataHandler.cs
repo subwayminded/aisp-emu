@@ -9,7 +9,7 @@ public class AvatarGetDataHandler(ILogger<AvatarGetDataHandler> logger, ICharact
 {
     public PacketType RequestType => PacketType.AvatarGetDataRequest;
 
-    public PacketType ResponseType => PacketType.Msg_AvatarDataResponse;
+    public PacketType ResponseType => PacketType.AvatarDataResponse;
 
     public MessageDomain Domains => MessageDomain.Msg;
 

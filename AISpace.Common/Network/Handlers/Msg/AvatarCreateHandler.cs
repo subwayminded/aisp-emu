@@ -8,9 +8,9 @@ namespace AISpace.Common.Network.Handlers.Msg;
 
 public class AvatarCreateHandler(ILogger<AvatarCreateHandler> logger, ICharacterRepository charRepo) : IPacketHandler
 {
-    public PacketType RequestType => PacketType.Msg_AvatarCreateRequest;
+    public PacketType RequestType => PacketType.AvatarCreateRequest;
 
-    public PacketType ResponseType => PacketType.Msg_AvatarCreateResponse;
+    public PacketType ResponseType => PacketType.AvatarCreateResponse;
 
     public MessageDomain Domains => MessageDomain.Msg;
 

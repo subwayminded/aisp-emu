@@ -7,71 +7,91 @@ public enum ServerType
     Area
 }
 
+public enum PacketDirection
+{
+    Unknown,
+    ServerToClient,
+    ClientToServer
+}
+
 [AttributeUsage(AttributeTargets.All)]
-public class PacketMetadata(ServerType serverType, string decompiledName) : Attribute
+public class PacketMetadata(ServerType serverType, PacketDirection direction, string decompiledName) : Attribute
 {
     public ServerType Server { get; } = serverType;
+    public PacketDirection Direction { get; set; } = direction;
     public string DecompiledName { get; } = decompiledName;
 }
 
 public enum PacketType : ushort
 {
-    [PacketMetadata(ServerType.Auth, "send_check_version")]
+    [PacketMetadata(ServerType.Auth, PacketDirection.ClientToServer, "send_check_version")]
     VersionCheckRequest = 0x62BC,
 
-    [PacketMetadata(ServerType.Auth, "recv_check_version_r")]
+    [PacketMetadata(ServerType.Auth, PacketDirection.ServerToClient, "recv_check_version_r")]
     VersionCheckResponse = 0xB6B4,
 
-    [PacketMetadata(ServerType.Auth, "send_get_worldlist")]
+    [PacketMetadata(ServerType.Auth, PacketDirection.ClientToServer, "send_get_worldlist")]
     Auth_WorldListRequest = 0x6676,
 
-    [PacketMetadata(ServerType.Auth, "recv_get_worldlist_r")]
+    [PacketMetadata(ServerType.Auth, PacketDirection.ServerToClient, "recv_get_worldlist_r")]
     Auth_WorldListResponse = 0xEE7E,
 
-    [PacketMetadata(ServerType.Auth, "send_select_world")]
+    [PacketMetadata(ServerType.Auth, PacketDirection.ClientToServer, "send_select_world")]
     Auth_WorldSelectRequest = 0x7FE7, 
 
-    [PacketMetadata(ServerType.Auth, "recv_select_world_r")]
+    [PacketMetadata(ServerType.Auth, PacketDirection.ServerToClient, "recv_select_world_r")]
     Auth_WorldSelectResponse = 0x3491,
 
-    [PacketMetadata(ServerType.Auth, "send_authenticate")]
+    [PacketMetadata(ServerType.Auth, PacketDirection.ClientToServer, "send_authenticate")]
     AuthenticateRequest = 0xF24B,
 
-    [PacketMetadata(ServerType.Auth, "recv_authenticate_r")]
+    [PacketMetadata(ServerType.Auth, PacketDirection.ServerToClient, "recv_authenticate_r")]
     AuthenticateResponse = 0xD4AB,
 
-    [PacketMetadata(ServerType.Auth, "recv_authenticate_r_failure")]
+    [PacketMetadata(ServerType.Auth, PacketDirection.ServerToClient, "recv_authenticate_r_failure")]
     AuthenticateFailureResponse = 0xD845,
 
-    [PacketMetadata(ServerType.Msg, "send_avatar_create")]
-    Msg_AvatarCreateRequest = 0x29A4, 
+    [PacketMetadata(ServerType.Msg, PacketDirection.ClientToServer, "send_avatar_create")]
+    AvatarCreateRequest = 0x29A4, 
 
-    [PacketMetadata(ServerType.Msg, "recv_avatar_create_r")]
-    Msg_AvatarCreateResponse = 0x788F,
+    [PacketMetadata(ServerType.Msg, PacketDirection.ServerToClient, "recv_avatar_create_r")]
+    AvatarCreateResponse = 0x788F,
 
-    [PacketMetadata(ServerType.Msg, "recv_avatar_data")]
-    Msg_AvatarDataResponse = 0x6747,
+    [PacketMetadata(ServerType.Msg, PacketDirection.ServerToClient, "recv_avatar_data")]
+    AvatarDataResponse = 0x6747,
 
-    [PacketMetadata(ServerType.Msg, "send_avatar_destroy")]
-    Msg_AvatarDestroyRequest = 0x765A,
+    [PacketMetadata(ServerType.Msg, PacketDirection.ClientToServer, "send_avatar_destroy")]
+    AvatarDestroyRequest = 0x765A,
 
-    [PacketMetadata(ServerType.Msg, "recv_avatar_destroy_r")]
-    Msg_AvatarDestroyResponse = 0x000, // TODO 
-    Msg_EnqueteGetRequest = 0xc578,
-    Msg_EnqueteGetResponse = 0x24EE,
-    Msg_EnqueteAnswerRequest = 0x352,
-    Msg_EnqueteAnswerResponse = 0x615A,
+    [PacketMetadata(ServerType.Msg, PacketDirection.ServerToClient, "recv_avatar_destroy_r")]
+    AvatarDestroyResponse = 0x6587,
+
+    [PacketMetadata(ServerType.Msg, PacketDirection.ClientToServer, "send_get_enquete")]
+    EnqueteGetRequest = 0xC578,
+
+    [PacketMetadata(ServerType.Msg, PacketDirection.ServerToClient, "recv_get_enquete_r")]
+    EnqueteGetResponse = 0x24EE,
+
+    [PacketMetadata(ServerType.Msg, PacketDirection.ClientToServer, "send_enquete_answer")]
+    EnqueteAnswerRequest = 0x352,
+
+    [PacketMetadata(ServerType.Msg, PacketDirection.ServerToClient, "recv_enquete_answer_r")]
+    EnqueteAnswerResponse = 0x615A,
 
 
+    [PacketMetadata(ServerType.Msg, PacketDirection.ServerToClient, "send_login")]
+    LoginRequest = 0x34EF,
 
-    LoginRequest = 0x34EF, // 13551
-    LoginResponse = 0x1FEA, // 8170
-    LogoutRequest = 0x0AD0, // 2768
+    [PacketMetadata(ServerType.Msg, PacketDirection.ServerToClient, "recv_login_r")]
+    LoginResponse = 0x1FEA,
 
-    [PacketMetadata(ServerType.Msg, "recv_logout_r")]
+    [PacketMetadata(ServerType.Msg, PacketDirection.ClientToServer, "send_logout")]
+    LogoutRequest = 0x0AD0,
+
+    [PacketMetadata(ServerType.Msg, PacketDirection.ServerToClient, "recv_logout_r")]
     LogoutResponse = 0xB7B9,
 
-    [PacketMetadata(ServerType.Auth, "recv_notify_logout")]
+    [PacketMetadata(ServerType.Auth, PacketDirection.ClientToServer, "recv_notify_logout")]
     LogoutNotify = 0x2D66, 
     AdventureUploadRateGetRequest = 0x71CF,
     AdventureUploadRateGetResponse = 0x9061,
@@ -83,15 +103,15 @@ public enum PacketType : ushort
     AreasvEnterResponse = 0x0149, // 329
     AreasvLeaveRequest = 0xF7B9, // 63417
     AreasvLeaveResponse = 0xE31D, // 58141
-
-
-    AvatarDestroyRequest = 0x765A, // 30298
     AvatarGetCreateInfoRequest = 0x04F6, // 1270
     AvatarGetCreateInfoResponse = 0xA5AD, // 42413
     AvatarGetDataRequest = 0xAD9E, // 44446
     AvatarGetDataResponse = 0xB055, // 45141
-    AvatarNotifyData = 0x7D78, // 32120 
-    AvatarNotifyMove = 0xAADB, // 43739
+    AvatarNotifyData = 0x7D78, // 32120
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ClientToServer, "recv_notify_move_chara")]
+    AvatarNotifyMove = 0xAADB,
+
     AvatarSelectRequest = 0x113D, // 4413
     AvatarSelectResponse = 0x2C5F, // 11359
     ChannelListGetRequest = 0x0300, // 768
