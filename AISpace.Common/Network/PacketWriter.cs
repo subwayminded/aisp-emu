@@ -1,87 +1,30 @@
-﻿using System.Buffers.Binary;
+﻿using System.Buffers;
+using System.Buffers.Binary;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace AISpace.Common.Network;
 
-public class PacketWriter : IDisposable
+public class PacketWriter
 {
     private readonly MemoryStream _stream = new();
 
-    public long Position => _stream.Position;
-    public long Length => _stream.Length;
     public byte[] ToBytes() => _stream.ToArray();
 
-    public void Dispose() => _stream.Dispose();
-
-    public void Write(ushort value)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void WriteLE<T>(T value, Action<Span<byte>, T> write)
     {
-        Span<byte> buffer = stackalloc byte[2];
-        BinaryPrimitives.WriteUInt16LittleEndian(buffer, value);
-        _stream.Write(buffer);
-    }
-    public void Write(short value)
-    {
-        Span<byte> buffer = stackalloc byte[2];
-        BinaryPrimitives.WriteInt16LittleEndian(buffer, value);
-        _stream.Write(buffer);
-    }
-    public void Write(params ulong[] values)
-    {
-        foreach (var value in values)
-            Write(value);
-    }
-    public void Write(ulong value)
-    {
-        Span<byte> buffer = stackalloc byte[8];
-        BinaryPrimitives.WriteUInt64LittleEndian(buffer, value);
-        _stream.Write(buffer);
-    }
-    public void Write(params ushort[] values)
-    {
-        foreach (var value in values) Write(value);
-    }
-    public void Write(uint value)
-    {
-        Span<byte> buffer = stackalloc byte[4];
-        BinaryPrimitives.WriteUInt32LittleEndian(buffer, value);
-        _stream.Write(buffer);
+        Span<byte> span = stackalloc byte[Unsafe.SizeOf<T>()];
+        write(span, value);
+        _stream.Write(span);
     }
 
-    public void Write(params uint[] values)
-    {
-        foreach (var value in values)
-            Write(value);
-    }
-    public void Write(int value)
-    {
-        Span<byte> buffer = stackalloc byte[4];
-        BinaryPrimitives.WriteInt32LittleEndian(buffer, value);
-        _stream.Write(buffer);
-    }
-
-    public void Write(params int[] values)
-    {
-        foreach (var value in values)
-            Write(value);
-    }
-
-
-    public void Write(params short[] values)
-    {
-        foreach (var value in values)
-            Write(value);
-    }
-    public void Write(float value)
-    {
-        Span<byte> buffer = stackalloc byte[4];
-        BinaryPrimitives.WriteSingleLittleEndian(buffer, value);
-        _stream.Write(buffer);
-    }
-    public void Write(params float[] values)
-    {
-        foreach (var value in values)
-            Write(value);
-    }
+    public void Write(ushort value) => WriteLE(value, BinaryPrimitives.WriteUInt16LittleEndian);
+    public void Write(short value) => WriteLE(value, BinaryPrimitives.WriteInt16LittleEndian);
+    public void Write(ulong value) => WriteLE(value, BinaryPrimitives.WriteUInt64LittleEndian);
+    public void Write(float value) => WriteLE(value, BinaryPrimitives.WriteSingleLittleEndian);
+    public void Write(uint value) => WriteLE(value, BinaryPrimitives.WriteUInt32LittleEndian);
+    public void Write(int value) => WriteLE(value, BinaryPrimitives.WriteInt32LittleEndian);
     public void Write(byte value) => _stream.WriteByte(value);
     public void Write(sbyte value) => _stream.WriteByte((byte)value);
     public void Write(ReadOnlySpan<byte> source) => _stream.Write(source);
@@ -90,10 +33,10 @@ public class PacketWriter : IDisposable
     {
         var encoder = Encoding.GetEncoding(encoderName);
         var size = encoder.GetByteCount(value);
-        Span<byte> buffer = stackalloc byte[size];
+        Span<byte> buffer = stackalloc byte[size+1];
         encoder.GetBytes(value, buffer);
+        buffer[size] = 0x00;
         _stream.Write(buffer);
-        _stream.WriteByte(0x00);//Null Terminator
     }
 
     public void WriteFixedString(string value, int length, string encoderName = "Shift_JIS")
@@ -101,6 +44,7 @@ public class PacketWriter : IDisposable
         var encoder = Encoding.GetEncoding(encoderName);
         var size = encoder.GetByteCount(value);
         Span<byte> buffer = stackalloc byte[length];
+        buffer.Clear();
         encoder.GetBytes(value, buffer);
         _stream.Write(buffer);
     }

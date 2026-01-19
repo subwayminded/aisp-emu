@@ -1,76 +1,62 @@
 ﻿using System.Buffers.Binary;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace AISpace.Common.Network;
 
-public ref struct PacketReader
+public ref struct PacketReader(ReadOnlySpan<byte> buffer)
 {
-    private readonly ReadOnlySpan<byte> _buffer;
-    private int _offset;
+    private readonly ReadOnlySpan<byte> _buffer = buffer;
+    private int _offset = 0;
 
-    public PacketReader(ReadOnlySpan<byte> buffer)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private ReadOnlySpan<byte> ReadSpan(int length)
     {
-        _buffer = buffer;
-        _offset = 0;
+        if (_offset + length > _buffer.Length)
+            throw new EndOfStreamException($"PacketReader: tried to read {length} bytes with {_buffer.Length - _offset} remaining");
+
+        var span = _buffer.Slice(_offset, length);
+        _offset += length;
+        return span;
     }
 
-    public readonly int Position => _offset;
-    public readonly bool EndOfSpan => _offset >= _buffer.Length;
+    public byte ReadByte() => ReadSpan(1)[0];
+    public sbyte ReadSByte() => (sbyte)ReadSpan(1)[0];
 
-    public byte ReadByte()
-    {
-        return _buffer[_offset++];
-    }
+    public float ReadFloat() => BinaryPrimitives.ReadSingleLittleEndian(ReadSpan(sizeof(float)));
+    public ushort ReadUShort() => BinaryPrimitives.ReadUInt16LittleEndian(ReadSpan(sizeof(ushort)));
+    public uint ReadUInt() => BinaryPrimitives.ReadUInt32LittleEndian(ReadSpan(sizeof(uint)));
 
-    public sbyte ReadSByte()
-    {
-        return (sbyte)_buffer[_offset++];
-    }
-
-    public float ReadFloat()
-    {
-        float value = BinaryPrimitives.ReadSingleLittleEndian(_buffer.Slice(_offset, 4));
-        _offset += 4;
-        return value;
-    }
-    public ushort ReadUShort()
-    {
-        ushort value = BinaryPrimitives.ReadUInt16LittleEndian(_buffer.Slice(_offset, 2));
-        _offset += 2;
-        return value;
-    }
-
-    public uint ReadUInt()
-    {
-        uint value = BinaryPrimitives.ReadUInt32LittleEndian(_buffer.Slice(_offset, 4));
-        _offset += 4;
-        return value;
-    }
-
-    public ReadOnlySpan<byte> ReadBytes(int count)
-    {
-        var slice = _buffer.Slice(_offset, count);
-        _offset += count;
-        return slice;
-    }
+    public ReadOnlySpan<byte> ReadBytes(int count) => ReadSpan(count);
 
     public string ReadFixedString(int length, string encoderName = "UTF8")
     {
         var encoder = Encoding.GetEncoding(encoderName);
-        var slice = ReadBytes(length);
-        return encoder.GetString(slice);
+        var span = ReadSpan(length);
+
+        // Trim at first null if present
+        int nullIndex = span.IndexOf((byte)0x00);
+        if (nullIndex >= 0)
+            span = span[..nullIndex];
+
+        return encoder.GetString(span);
     }
 
     public string ReadString(string encoderName = "ASCII")
     {
         var encoder = Encoding.GetEncoding(encoderName);
-        var slice = _buffer[_offset..];
-        int end = slice.IndexOf((byte)0x00);
-        if (end < 0)
-            end = slice.Length;
+        var remaining = _buffer[_offset..];
+        int nullIndex = remaining.IndexOf((byte)0x00);
 
-        _offset += end < slice.Length ? end + 1 : end;
+        if (nullIndex < 0)
+        {
+            _offset = _buffer.Length;
+            return encoder.GetString(remaining);
+        }
 
-        return encoder.GetString(slice[..end]);
+        var span = remaining[..nullIndex];
+        _offset += nullIndex + 1;
+
+        return encoder.GetString(span);
     }
 }
