@@ -2,7 +2,8 @@
 
 public class WorldListResponse(uint Result, List<DAL.Entities.World> Worlds) : IPacket<WorldListResponse>
 {
-
+    readonly int MaxNameLen = 97;
+    readonly int MaxDescLen = 766;
     public static WorldListResponse FromBytes(ReadOnlySpan<byte> data)
     {
         throw new NotImplementedException();
@@ -16,8 +17,8 @@ public class WorldListResponse(uint Result, List<DAL.Entities.World> Worlds) : I
         foreach (var world in Worlds)
         {
             writer.Write((uint)world.Id);
-            writer.WriteFixedString(world.Name, 97, "ASCII"); //World Name
-            writer.WriteFixedString(world.Description, 766, "ASCII"); //World Description
+            writer.WriteFixedAsciiString(world.Name, MaxNameLen);
+            writer.WriteFixedAsciiString(world.Description, MaxDescLen);
         }
         writer.Write((uint)0); //Padding?
         return writer.ToBytes();
