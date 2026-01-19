@@ -33,8 +33,8 @@ public class ClientConnection(Guid _Id, EndPoint _RemoteEndPoint, NetworkStream 
     public DateTimeOffset lastPing;
 
 
-    public bool IsAuthenticated => clientUser != null;
-    public User? clientUser;
+    public bool IsAuthenticated => User != null;
+    public User? User;
     public DateTimeOffset Connected { get; } = DateTimeOffset.UtcNow;
 
     public async Task SendRawAsync(byte[] data, CancellationToken ct = default) => await Stream.WriteAsync(data, ct);

@@ -10,9 +10,7 @@ public class AuthenticateHandler(IUserRepository userRepo, ILogger<AuthenticateH
     private readonly ILogger<AuthenticateHandler> _logger = logger;
     public PacketType RequestType => PacketType.AuthenticateRequest;
     public PacketType ResponseType => PacketType.AuthenticateResponse;
-
     public MessageDomain Domains => MessageDomain.Auth;
-
 
     public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
     {
@@ -25,10 +23,12 @@ public class AuthenticateHandler(IUserRepository userRepo, ILogger<AuthenticateH
             _logger.LogWarning("Authentication failed for user '{Username}'", req.Username);
             var failResp = new AuthenticateFailureResponse(AuthResponseResult.InvalidCredentials);
             await connection.SendAsync(PacketType.AuthenticateFailureResponse, failResp.ToBytes(), ct);
-            return;
         }
-        connection.clientUser = validUser;
-        var AuthResp = new AuthenticateResponse((uint)validUser.Id);
-        await connection.SendAsync(ResponseType, AuthResp.ToBytes(), ct);
+        else
+        {
+            connection.User = validUser;
+            var AuthResp = new AuthenticateResponse((uint)validUser.Id);
+            await connection.SendAsync(ResponseType, AuthResp.ToBytes(), ct);
+        }
     }
 }

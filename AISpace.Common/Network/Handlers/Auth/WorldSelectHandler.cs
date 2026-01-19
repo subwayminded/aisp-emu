@@ -26,7 +26,7 @@ public class WorldSelectHandler(IWorldRepository worldRepo, IUserSessionReposito
         if (!connection.IsAuthenticated)//TODO: Should send a Logout notification?
             return;
 
-        User clientUser = connection.clientUser!;
+        User clientUser = connection.User!;
 
         string otp = CryptoUtils.GenerateOTP();
         //Need to insert the otp into UserSessions

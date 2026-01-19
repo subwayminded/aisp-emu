@@ -31,8 +31,8 @@ public class LoginHandler(IUserSessionRepository sessionRepo, ILogger<LoginHandl
         }
         
         //Set connection as authenticated
-        connection.clientUser = session.User;
-        _logger.LogInformation("Client: {ClientId} LoginRequest UserID: {UserID}, OTP: {OTP}, Name: {name}", connection.Id, loginReq._userId, otp, connection.clientUser.Username);
+        connection.User = session.User;
+        _logger.LogInformation("Client: {ClientId} LoginRequest UserID: {UserID}, OTP: {OTP}, Name: {name}", connection.Id, loginReq._userId, otp, connection.User.Username);
         await connection.SendAsync(ResponseType, new LoginResponse(AuthResponseResult.Success).ToBytes(), ct);
     }
 }

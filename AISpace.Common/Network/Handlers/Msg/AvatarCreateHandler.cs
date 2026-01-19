@@ -23,11 +23,11 @@ public class AvatarCreateHandler(ILogger<AvatarCreateHandler> logger, ICharacter
         _logger.LogInformation("createRequest: {request}", createRequest.ToString());
 
         //TODO: Send Logout request?
-        if (!connection.IsAuthenticated || connection.clientUser == null)
+        if (!connection.IsAuthenticated || connection.User == null)
             return;
 
         Character newChar = await charRepo.CreateAsync(createRequest.AvatarName,
-            connection.clientUser.Id,
+            connection.User.Id,
             createRequest.modelId,
             createRequest.visual.BloodType,
             createRequest.visual.Birthdate,

@@ -29,9 +29,9 @@ public class AreasvEnterHandler(IUserSessionRepository sessionRepo, ILogger<Area
             return;
         }
 
-        connection.clientUser = session.User;
-        uint charId = (uint)connection.clientUser.Characters.First().Id;
-        _logger.LogInformation("Client: {ClientId} LoginRequest UserID: {UserID}, OTP: {OTP}, Name: {name}, CharID {charid}, CharName: {cname}", connection.Id, loginReq.UserID, loginReq.OTP, connection.clientUser.Username, charId, connection.clientUser.Characters.First().Name);
+        connection.User = session.User;
+        uint charId = (uint)connection.User.Characters.First().Id;
+        _logger.LogInformation("Client: {ClientId} LoginRequest UserID: {UserID}, OTP: {OTP}, Name: {name}, CharID {charid}, CharName: {cname}", connection.Id, loginReq.UserID, loginReq.OTP, connection.User.Username, charId, connection.User.Characters.First().Name);
 
         var response = new AreasvEnterResponse(0, 0);
         await connection.SendAsync(ResponseType, response.ToBytes(), ct);
