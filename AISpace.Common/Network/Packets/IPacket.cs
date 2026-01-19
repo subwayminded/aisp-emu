@@ -1,8 +1,12 @@
 ﻿namespace AISpace.Common.Network.Packets;
 
 
-public interface IPacket<T> where T : IPacket<T>
+public interface IPacket<TSelf> where TSelf : IPacket<TSelf>
 {
+    //void Write(ref PacketWriter writer);
+
+    //static abstract TSelf Read(ref PacketReader reader);
+
     byte[] ToBytes();
-    static abstract T FromBytes(ReadOnlySpan<byte> data);
+    static abstract TSelf FromBytes(ReadOnlySpan<byte> data);
 }
