@@ -14,6 +14,7 @@ public class AreaAvatarGetDataHandler(ILogger<AreaAvatarGetDataHandler> logger, 
     public MessageDomain Domain => MessageDomain.Area;
 
     private readonly ILogger<AreaAvatarGetDataHandler> _logger = logger;
+    private readonly ICharacterRepository _charRepo = charRepo;
 
     public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
     {
@@ -22,8 +23,10 @@ public class AreaAvatarGetDataHandler(ILogger<AreaAvatarGetDataHandler> logger, 
         _logger.LogInformation("Received AvatarGetDataRequest from Client: {Id}, IsAuthed: {auth}", connection.Id, connection.IsAuthenticated);
         _logger.LogInformation("Received AvatarGetDataRequest from Client: {Id}", connection.Id);
 
-        var cha = connection.User.Characters.First();
-        _logger.LogInformation("Processing AvatarGetDataRequest for Character: {CharacterName} (ID: {CharacterId})", cha?.Name, cha?.Id);
+        var cha = connection.User!.Characters.First();
+        if (cha == null)
+            return;
+        _logger.LogInformation("Processing AvatarGetDataRequest for Character: {CharacterName} (ID: {CharacterId})", cha.Name, cha.Id);
         //TODO: Figure out ID's. Maybe merge CharacterData with AvatarData/CharaData?
         var charaData = new CharaData(0, 0, cha.Name);
         charaData.Visual.CharacterID = 0;

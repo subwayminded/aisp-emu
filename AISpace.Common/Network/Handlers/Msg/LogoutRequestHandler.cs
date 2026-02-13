@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AISpace.Common.Network.Handlers.Msg;
 
-public class LogoutRequestHandler(ILogger<AvatarCreateHandler> logger) : IPacketHandler
+public class LogoutRequestHandler(ILogger<LogoutRequestHandler> logger) : IPacketHandler
 {
     public PacketType RequestType => PacketType.LogoutRequest;
 
@@ -13,6 +13,7 @@ public class LogoutRequestHandler(ILogger<AvatarCreateHandler> logger) : IPacket
 
     public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
     {
+        logger.LogInformation("Logout requested from {ConnectionId}", connection.Id);
         await connection.SendAsync(ResponseType, new LogoutResponse().ToBytes(), ct);
     }
 }

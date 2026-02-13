@@ -11,6 +11,7 @@ public abstract class PingHandlerBase(ILogger logger) : IPacketHandler
 
     public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
     {
+        logger.LogTrace("Ping from {ConnectionId}", connection.Id);
         var ping = PingRequest.FromBytes(payload.Span);
         await connection.SendAsync(PacketType.Ping, ping.ToBytes(), ct);
     }

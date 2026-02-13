@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+namespace AISpace.Common.Game;
 
-namespace AISpace.Common.Game
+public class GameChannel(int id, string name)
 {
-    public class GameChannel
-    {
-        int ID;
-        string name;
-    }
+    public int Id = id;
+    public string Name = name;
 }

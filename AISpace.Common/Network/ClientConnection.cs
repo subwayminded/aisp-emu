@@ -1,4 +1,4 @@
-﻿using System.Buffers.Binary;
+using System.Buffers.Binary;
 using System.Net;
 using System.Net.Sockets;
 using AISpace.Common.DAL.Entities;
@@ -22,8 +22,8 @@ public class ClientConnection(Guid _Id, EndPoint _RemoteEndPoint, NetworkStream 
     const int BlockSize = 16;
     private const byte HeaderPrefix = 0x03;
     private const int HeaderSize = 2;
-    public VCECamellia128 C2S;
-    public VCECamellia128 S2C;
+    public VCECamellia128? C2S;
+    public VCECamellia128? S2C;
     public bool encrypted = true;
     public ClientState CurrentState;
     public Guid Id = _Id;
@@ -51,7 +51,7 @@ public class ClientConnection(Guid _Id, EndPoint _RemoteEndPoint, NetworkStream 
     {
         if (data.Length % 16 != 0)
             throw new ArgumentException("Data length not multiple of 16");
-        C2S.DecryptBlock(data);
+        C2S!.DecryptBlock(data);
     }
 
     public void DecryptBlocks(Span<byte> data)
@@ -66,7 +66,7 @@ public class ClientConnection(Guid _Id, EndPoint _RemoteEndPoint, NetworkStream 
     {
         if (data.Length % 16 != 0)
             throw new ArgumentException("Data length not multiple of 16");
-        S2C.EncryptBlock(data);
+        S2C!.EncryptBlock(data);
     }
 
     public void EncryptBlocks(Span<byte> data)
