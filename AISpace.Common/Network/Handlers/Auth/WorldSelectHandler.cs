@@ -1,4 +1,4 @@
-﻿using AISpace.Common.DAL.Entities;
+using AISpace.Common.DAL.Entities;
 using AISpace.Common.DAL.Repositories;
 using AISpace.Common.Network.Crypto;
 using AISpace.Common.Network.Packets.Auth;
@@ -10,7 +10,7 @@ public class WorldSelectHandler(IWorldRepository worldRepo, IUserSessionReposito
 {
     public PacketType RequestType => PacketType.Auth_WorldSelectRequest;
     public PacketType ResponseType => PacketType.Auth_WorldSelectResponse;
-    public MessageDomain Domains => MessageDomain.Auth;
+    public MessageDomain Domain => MessageDomain.Auth;
 
     private readonly IWorldRepository _worldRepository = worldRepo;
     private readonly IUserSessionRepository _sessionRepo = sessionRepo;

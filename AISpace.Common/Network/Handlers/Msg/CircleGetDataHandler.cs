@@ -6,7 +6,7 @@ public class CircleGetDataHandler : IPacketHandler
 
     public PacketType ResponseType => PacketType.CircleGetDataResponse;
 
-    public MessageDomain Domains => MessageDomain.Msg;
+    public MessageDomain Domain => MessageDomain.Msg;
 
     public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
     {

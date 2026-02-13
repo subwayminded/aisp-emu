@@ -11,7 +11,7 @@ public class AreaAvatarGetDataHandler(ILogger<AreaAvatarGetDataHandler> logger, 
 
     public PacketType ResponseType => PacketType.AvatarNotifyData;
 
-    public MessageDomain Domains => MessageDomain.Area;
+    public MessageDomain Domain => MessageDomain.Area;
 
     private readonly ILogger<AreaAvatarGetDataHandler> _logger = logger;
 

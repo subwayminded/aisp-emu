@@ -8,7 +8,7 @@ public class AreaFurnitureGetBaseListHandler : IPacketHandler
 
     public PacketType ResponseType => PacketType.FurnitureGetBaseListResponse;
 
-    public MessageDomain Domains => MessageDomain.Area;
+    public MessageDomain Domain => MessageDomain.Area;
 
     public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
     {

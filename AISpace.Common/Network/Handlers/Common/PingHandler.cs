@@ -1,18 +1,32 @@
-﻿using AISpace.Common.Network.Packets.Common;
+using AISpace.Common.Network.Packets.Common;
 using Microsoft.Extensions.Logging;
 
 namespace AISpace.Common.Network.Handlers.Common;
 
-public class PingHandler(ILogger<PingHandler> logger) : IPacketHandler
+public abstract class PingHandlerBase(ILogger logger) : IPacketHandler
 {
     public PacketType RequestType => PacketType.Ping;
     public PacketType ResponseType => PacketType.Ping;
-    public MessageDomain Domains => MessageDomain.Msg | MessageDomain.Area | MessageDomain.Auth;
+    public abstract MessageDomain Domain { get; }
 
-    ILogger<PingHandler> _logger = logger;
     public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
     {
         var ping = PingRequest.FromBytes(payload.Span);
         await connection.SendAsync(PacketType.Ping, ping.ToBytes(), ct);
     }
+}
+
+public class AuthPingHandler(ILogger<AuthPingHandler> logger) : PingHandlerBase(logger)
+{
+    public override MessageDomain Domain => MessageDomain.Auth;
+}
+
+public class MsgPingHandler(ILogger<MsgPingHandler> logger) : PingHandlerBase(logger)
+{
+    public override MessageDomain Domain => MessageDomain.Msg;
+}
+
+public class AreaPingHandler(ILogger<AreaPingHandler> logger) : PingHandlerBase(logger)
+{
+    public override MessageDomain Domain => MessageDomain.Area;
 }

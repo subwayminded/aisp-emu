@@ -1,20 +1,32 @@
-﻿using AISpace.Common.Network.Packets.Common;
+using AISpace.Common.Network.Packets.Common;
 
 namespace AISpace.Common.Network.Handlers.Common;
 
-public class VersionCheckHandler : IPacketHandler
+public abstract class VersionCheckHandlerBase : IPacketHandler
 {
     public PacketType RequestType => PacketType.VersionCheckRequest;
     public PacketType ResponseType => PacketType.VersionCheckResponse;
-    public MessageDomain Domains => MessageDomain.Msg | MessageDomain.Area | MessageDomain.Auth;
+    public abstract MessageDomain Domain { get; }
 
     public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
     {
         var req = VersionCheckRequest.FromBytes(payload.Span);
-        //TODO: Implement some way of checking version is 'correct'
         var resp = new VersionCheckResponse(0, req.Major, req.Minor, req.Version);
-
-        //Just send back the same version as the client sent
         await connection.SendAsync(ResponseType, resp.ToBytes(), ct);
     }
+}
+
+public class AuthVersionCheckHandler : VersionCheckHandlerBase
+{
+    public override MessageDomain Domain => MessageDomain.Auth;
+}
+
+public class MsgVersionCheckHandler : VersionCheckHandlerBase
+{
+    public override MessageDomain Domain => MessageDomain.Msg;
+}
+
+public class AreaVersionCheckHandler : VersionCheckHandlerBase
+{
+    public override MessageDomain Domain => MessageDomain.Area;
 }

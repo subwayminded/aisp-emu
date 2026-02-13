@@ -8,7 +8,7 @@ public class AreaHeroineGetTicketBaseHandler : IPacketHandler
 
     public PacketType ResponseType => PacketType.HeroineGetTicketBaseResponse;
 
-    public MessageDomain Domains => MessageDomain.Area;
+    public MessageDomain Domain => MessageDomain.Area;
 
     public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
     {

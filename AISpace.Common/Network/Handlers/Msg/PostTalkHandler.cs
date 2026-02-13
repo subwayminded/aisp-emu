@@ -11,7 +11,7 @@ public class PostTalkHandler : IPacketHandler
 
     public PacketType ResponseType => PacketType.PostTalkRequest;
 
-    public MessageDomain Domains => MessageDomain.Msg;
+    public MessageDomain Domain => MessageDomain.Msg;
 
     public Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
     {

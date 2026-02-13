@@ -1,4 +1,4 @@
-﻿using AISpace.Common.DAL.Repositories;
+using AISpace.Common.DAL.Repositories;
 using AISpace.Common.Network.Packets.Auth;
 using Microsoft.Extensions.Logging;
 
@@ -8,7 +8,7 @@ public class WorldListHandler(IWorldRepository repo, ILogger<WorldListHandler> l
 {
     public PacketType RequestType => PacketType.Auth_WorldListRequest;
     public PacketType ResponseType => PacketType.Auth_WorldListResponse;
-    public MessageDomain Domains => MessageDomain.Auth;
+    public MessageDomain Domain => MessageDomain.Auth;
 
     private readonly IWorldRepository _worldRepository = repo;
     private readonly ILogger<WorldListHandler> _logger = logger;

@@ -8,7 +8,7 @@ public class AreaAiDownloadListGetHandler : IPacketHandler
 
     public PacketType ResponseType => PacketType.AiDownloadListGetResponse;
 
-    public MessageDomain Domains => MessageDomain.Area;
+    public MessageDomain Domain => MessageDomain.Area;
 
     public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
     {

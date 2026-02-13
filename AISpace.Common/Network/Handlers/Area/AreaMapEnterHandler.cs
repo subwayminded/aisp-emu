@@ -8,7 +8,7 @@ public class AreaMapEnterHandler : IPacketHandler
 
     public PacketType ResponseType => PacketType.MapEnterResponse;
 
-    public MessageDomain Domains => MessageDomain.Area;
+    public MessageDomain Domain => MessageDomain.Area;
 
     public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
     {

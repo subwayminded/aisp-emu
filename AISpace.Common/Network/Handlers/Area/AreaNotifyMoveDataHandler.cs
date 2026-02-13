@@ -9,7 +9,7 @@ public class AreaNotifyMoveDataHandler : IPacketHandler
 
     public PacketType ResponseType => PacketType.NotifyMoveData;
 
-    public MessageDomain Domains => MessageDomain.Area;
+    public MessageDomain Domain => MessageDomain.Area;
 
     private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 

@@ -5,34 +5,29 @@ using Microsoft.Extensions.Logging;
 
 namespace AISpace.Common.Network.Handlers.Msg;
 
-public class LoginHandler(IUserSessionRepository sessionRepo, ILogger<LoginHandler> logger) : IPacketHandler
+public class LoginHandler(IUserSessionRepository sessionRepo, ILogger<LoginHandler> logger) : PacketHandlerBase<LoginRequest, LoginResponse>
 {
-
-    public PacketType RequestType => PacketType.LoginRequest;
-
-    public PacketType ResponseType => PacketType.LoginResponse;
-
-    public MessageDomain Domains => MessageDomain.Msg;
+    public override PacketType RequestType => PacketType.LoginRequest;
+    public override PacketType ResponseType => PacketType.LoginResponse;
+    public override MessageDomain Domain => MessageDomain.Msg;
 
     private readonly IUserSessionRepository _sessionRepo = sessionRepo;
     private readonly ILogger<LoginHandler> _logger = logger;
 
-    public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
+    public override async Task<LoginResponse?> HandleAsync(LoginRequest request, ClientConnection connection, CancellationToken ct = default)
     {
-        var loginReq = LoginRequest.FromBytes(payload.Span);
-        var otp = Encoding.ASCII.GetString(loginReq._otp);
-        _logger.LogInformation("ListenerId: {ListenId} LoginRequest UserID: {UserID}, OTP: {OTP}", connection.Id, loginReq._userId, otp);
+        var otp = Encoding.ASCII.GetString(request._otp);
+        _logger.LogInformation("ListenerId: {ListenId} LoginRequest UserID: {UserID}, OTP: {OTP}", connection.Id, request._userId, otp);
+
         var session = await _sessionRepo.GetValidSessionAsync(otp, ct);
-        if(session is null || session.UserId != loginReq._userId)
+        if (session is null || session.UserId != request._userId)
         {
-            _logger.LogWarning("Client: {ClientId} Login failed for UserID: {UserID} with OTP: {OTP}", connection.Id, loginReq._userId, otp);
-            await connection.SendAsync(ResponseType, new LoginResponse(AuthResponseResult.InvalidCredentials).ToBytes(), ct);
-            return;
+            _logger.LogWarning("Client: {ClientId} Login failed for UserID: {UserID} with OTP: {OTP}", connection.Id, request._userId, otp);
+            return new LoginResponse(AuthResponseResult.InvalidCredentials);
         }
-        
-        //Set connection as authenticated
+
         connection.User = session.User;
-        _logger.LogInformation("Client: {ClientId} LoginRequest UserID: {UserID}, OTP: {OTP}, Name: {name}", connection.Id, loginReq._userId, otp, connection.User.Username);
-        await connection.SendAsync(ResponseType, new LoginResponse(AuthResponseResult.Success).ToBytes(), ct);
+        _logger.LogInformation("Client: {ClientId} LoginRequest UserID: {UserID}, OTP: {OTP}, Name: {name}", connection.Id, request._userId, otp, connection.User.Username);
+        return new LoginResponse(AuthResponseResult.Success);
     }
 }

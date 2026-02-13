@@ -11,7 +11,7 @@ public class AreasvEnterHandler(IUserSessionRepository sessionRepo, ILogger<Area
 
     public PacketType ResponseType => PacketType.AreasvEnterResponse;
 
-    public MessageDomain Domains => MessageDomain.Area;
+    public MessageDomain Domain => MessageDomain.Area;
 
     private readonly IUserSessionRepository _sessionRepo = sessionRepo;
     private readonly ILogger<AreasvEnterHandler> _logger = logger;

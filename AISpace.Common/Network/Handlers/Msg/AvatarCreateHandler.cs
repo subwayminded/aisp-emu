@@ -1,4 +1,3 @@
-﻿
 using AISpace.Common.DAL.Entities;
 using AISpace.Common.DAL.Repositories;
 using AISpace.Common.Network.Packets.Msg;
@@ -6,54 +5,45 @@ using Microsoft.Extensions.Logging;
 
 namespace AISpace.Common.Network.Handlers.Msg;
 
-public class AvatarCreateHandler(ILogger<AvatarCreateHandler> logger, ICharacterRepository charRepo) : IPacketHandler
+public class AvatarCreateHandler(ILogger<AvatarCreateHandler> logger, ICharacterRepository charRepo) : PacketHandlerBase<AvatarCreateRequest, AvatarCreateResponse>
 {
-    public PacketType RequestType => PacketType.AvatarCreateRequest;
-
-    public PacketType ResponseType => PacketType.AvatarCreateResponse;
-
-    public MessageDomain Domains => MessageDomain.Msg;
+    public override PacketType RequestType => PacketType.AvatarCreateRequest;
+    public override PacketType ResponseType => PacketType.AvatarCreateResponse;
+    public override MessageDomain Domain => MessageDomain.Msg;
 
     private readonly ILogger<AvatarCreateHandler> _logger = logger;
 
-    public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
+    public override async Task<AvatarCreateResponse?> HandleAsync(AvatarCreateRequest request, ClientConnection connection, CancellationToken ct = default)
     {
-        var createRequest = AvatarCreateRequest.FromBytes(payload.Span);
+        _logger.LogInformation("createRequest: {request}", request.ToString());
 
-        _logger.LogInformation("createRequest: {request}", createRequest.ToString());
-
-        //TODO: Send Logout request?
         if (!connection.IsAuthenticated || connection.User == null)
-            return;
+            return null;
 
-        Character newChar = await charRepo.CreateAsync(createRequest.AvatarName,
+        Character newChar = await charRepo.CreateAsync(request.AvatarName,
             connection.User.Id,
-            createRequest.modelId,
-            createRequest.visual.BloodType,
-            createRequest.visual.Birthdate,
-            (int)createRequest.visual.Gender,
-            createRequest.visual.Face,
-            createRequest.visual.Hairstyle, ct);
+            request.modelId,
+            request.visual.BloodType,
+            request.visual.Birthdate,
+            (int)request.visual.Gender,
+            request.visual.Face,
+            request.visual.Hairstyle, ct);
 
-        //Add Clothing
-        if ((int)createRequest.visual.Gender == 1)
+        if ((int)request.visual.Gender == 1)
         {
-            //Male
-            await charRepo.EquipAsync(newChar.Id, 0, 10100220, ct);//Shirt
-            await charRepo.EquipAsync(newChar.Id, 1, 10200100, ct);//Pants
-            await charRepo.EquipAsync(newChar.Id, 2, 10400030, ct);//Socks
-            await charRepo.EquipAsync(newChar.Id, 3, 10500070, ct);//Shoes
+            await charRepo.EquipAsync(newChar.Id, 0, 10100220, ct);
+            await charRepo.EquipAsync(newChar.Id, 1, 10200100, ct);
+            await charRepo.EquipAsync(newChar.Id, 2, 10400030, ct);
+            await charRepo.EquipAsync(newChar.Id, 3, 10500070, ct);
         }
         else
         {
-            //Female
-            await charRepo.EquipAsync(newChar.Id, 0, 10100060, ct);//Shirt
-            await charRepo.EquipAsync(newChar.Id, 1, 10200090, ct);//Pants
-            await charRepo.EquipAsync(newChar.Id, 2, 10400000, ct);//Socks
-            await charRepo.EquipAsync(newChar.Id, 3, 10500010, ct);//Shoes
+            await charRepo.EquipAsync(newChar.Id, 0, 10100060, ct);
+            await charRepo.EquipAsync(newChar.Id, 1, 10200090, ct);
+            await charRepo.EquipAsync(newChar.Id, 2, 10400000, ct);
+            await charRepo.EquipAsync(newChar.Id, 3, 10500010, ct);
         }
 
-            //TODO: do something with the avatar creation request
-            await connection.SendAsync(ResponseType, new AvatarCreateResponse(0).ToBytes(), ct);
+        return new AvatarCreateResponse(0);
     }
 }

@@ -8,7 +8,7 @@ public class ItemGetBaseListHandler : IPacketHandler
 
     public PacketType ResponseType => PacketType.ItemGetBaseListResponse;
 
-    public MessageDomain Domains => MessageDomain.Msg;
+    public MessageDomain Domain => MessageDomain.Msg;
 
     public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
     {

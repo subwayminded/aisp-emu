@@ -1,34 +1,32 @@
-﻿using AISpace.Common.DAL.Entities;
+using AISpace.Common.DAL.Entities;
 using AISpace.Common.DAL.Repositories;
 using AISpace.Common.Network.Packets.Auth;
 using Microsoft.Extensions.Logging;
 
 namespace AISpace.Common.Network.Handlers.Auth;
 
-public class AuthenticateHandler(IUserRepository userRepo, ILogger<AuthenticateHandler> logger) : IPacketHandler
+public class AuthenticateHandler(IUserRepository userRepo, ILogger<AuthenticateHandler> logger) : PacketHandlerBase<AuthenticateRequest, AuthenticateResponse>
 {
     private readonly ILogger<AuthenticateHandler> _logger = logger;
-    public PacketType RequestType => PacketType.AuthenticateRequest;
-    public PacketType ResponseType => PacketType.AuthenticateResponse;
-    public MessageDomain Domains => MessageDomain.Auth;
 
-    public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
+    public override PacketType RequestType => PacketType.AuthenticateRequest;
+    public override PacketType ResponseType => PacketType.AuthenticateResponse;
+    public override MessageDomain Domain => MessageDomain.Auth;
+
+    public override async Task<AuthenticateResponse?> HandleAsync(AuthenticateRequest request, ClientConnection connection, CancellationToken ct = default)
     {
-        var req = AuthenticateRequest.FromBytes(payload.Span);
-        _logger.LogInformation("Username: '{Username}'", req.Username);
+        _logger.LogInformation("Username: '{Username}'", request.Username);
 
-        User? validUser = await userRepo.AuthenticateAsync(req.Username, req.Password);
+        User? validUser = await userRepo.AuthenticateAsync(request.Username, request.Password);
         if (validUser is null)
         {
-            _logger.LogWarning("Authentication failed for user '{Username}'", req.Username);
+            _logger.LogWarning("Authentication failed for user '{Username}'", request.Username);
             var failResp = new AuthenticateFailureResponse(AuthResponseResult.InvalidCredentials);
             await connection.SendAsync(PacketType.AuthenticateFailureResponse, failResp.ToBytes(), ct);
+            return null;
         }
-        else
-        {
-            connection.User = validUser;
-            var AuthResp = new AuthenticateResponse((uint)validUser.Id);
-            await connection.SendAsync(ResponseType, AuthResp.ToBytes(), ct);
-        }
+
+        connection.User = validUser;
+        return new AuthenticateResponse((uint)validUser.Id);
     }
 }
