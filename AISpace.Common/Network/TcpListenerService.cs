@@ -150,22 +150,34 @@ public class TcpListenerService(ILogger<TcpListenerService> logger, Channel<Pack
                     int headerParam = codecType & 0xF;
                     if (headerType != 0)
                     {
-                        // Ping (1), Pong (2), Terminated (3), DirectContact (4) - skip or handle separately
-                        if (headerType == 1 && msgSize - offset >= 9) { offset += 9; continue; }
-                        if (headerType == 2 && msgSize - offset >= 9) { offset += 9; continue; }
-                        if (headerType == 3 && msgSize - offset >= 5) { offset += 5; continue; }
+                        if ((headerType == 1 || headerType == 2) && msgSize - offset >= 9)
+                        {
+                            //Ping or Pong
+                            offset += 9;
+                            continue;
+                        }
+                        if (headerType == 3 && msgSize - offset >= 5)
+                        {
+                            //Terminated
+                            offset += 5;
+                            continue;
+                        }
                         break;
                     }
-                    // Type 0 (PacketData): size is 1..4 bytes LE depending on headerParam; Rust data_start = 2 + header_param
+                    
                     int sizeBytes = 1 + headerParam;
-                    if (sizeBytes > 4) sizeBytes = 4;
+                    if (sizeBytes > 4)
+                        sizeBytes = 4;
                     int payloadStartOffset = 2 + headerParam; // codec(1) + size(bytes 1..1+param); payload = [type 2][body] starts here
                     if (offset + payloadStartOffset > msgSize)
                         break;
                     int packetSize = cipher[offset + 1];
-                    if (sizeBytes >= 2) packetSize |= cipher[offset + 2] << 8;
-                    if (sizeBytes >= 3) packetSize |= cipher[offset + 3] << 16;
-                    if (sizeBytes >= 4) packetSize |= cipher[offset + 4] << 24;
+                    if (sizeBytes >= 2)
+                        packetSize |= cipher[offset + 2] << 8;
+                    if (sizeBytes >= 3)
+                        packetSize |= cipher[offset + 3] << 16;
+                    if (sizeBytes >= 4)
+                        packetSize |= cipher[offset + 4] << 24;
                     int payloadLen = packetSize; // full payload = [type 2][body]
                     int payloadStart = offset + payloadStartOffset;
                     int payloadEnd = payloadStart + payloadLen;
