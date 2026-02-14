@@ -1,6 +1,3 @@
-﻿namespace AISpace.Common.Network.Packets.Auth
-{
-    internal class LogoutNotify
-    {
-    }
-}
+﻿namespace AISpace.Common.Network.Packets.Auth;
+
+public class LogoutNotify { }
