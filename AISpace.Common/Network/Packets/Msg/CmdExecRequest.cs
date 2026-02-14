@@ -1,6 +1,6 @@
 namespace AISpace.Common.Network.Packets.Msg;
 
-public class CmdExecRequest(uint messageId, string command, uint argCount, List<string>? arguments = null) : IPacket<CmdExecRequest>
+public class CmdExecRequest(uint messageId, string command, uint argCount, List<string> arguments) : IPacket<CmdExecRequest>
 {
     const int MaxArgs = 10;
     const int ArgLength = 384;
@@ -10,9 +10,7 @@ public class CmdExecRequest(uint messageId, string command, uint argCount, List<
     public string Command = command;
     public uint ArgCount = argCount;
 
-    public List<string> Arguments { get; } = arguments ?? [];
-
-    public const int FullPayloadLength = 4 + 96 + (10 * 0x180) + 4;
+    public List<string> Arguments { get; } = arguments;
 
     public static CmdExecRequest FromBytes(ReadOnlySpan<byte> data)
     {
@@ -21,7 +19,7 @@ public class CmdExecRequest(uint messageId, string command, uint argCount, List<
         var msgId = reader.ReadUInt();
         var cmd = reader.ReadFixedString(CmdLength, "ASCII");
 
-        var args = new List<string>();
+        var args = new List<string>(MaxArgs);
         for (int i = 0; i < MaxArgs; i++)
         {
             string arg = reader.ReadFixedString(ArgLength, "ASCII");
@@ -29,7 +27,7 @@ public class CmdExecRequest(uint messageId, string command, uint argCount, List<
         }
         uint argCount = reader.ReadUInt();
 
-        return new CmdExecRequest(msgId, cmd, argCount, [.. args.Take((int)argCount)]);
+        return new CmdExecRequest(msgId, cmd, argCount, args.Take((int)argCount).ToList());
     }
 
     public byte[] ToBytes()
