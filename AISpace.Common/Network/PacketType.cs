@@ -5,14 +5,14 @@ public enum ServerType
     Unknown,
     Msg,
     Auth,
-    Area
+    Area,
 }
 
 public enum PacketDirection
 {
     Unknown,
     ServerToClient,
-    ClientToServer
+    ClientToServer,
 }
 
 [AttributeUsage(AttributeTargets.All)]
@@ -38,7 +38,7 @@ public enum PacketType : ushort
     Auth_WorldListResponse = 0xEE7E,
 
     [PacketMetadata(ServerType.Auth, PacketDirection.ClientToServer, "send_select_world")]
-    Auth_WorldSelectRequest = 0x7FE7, 
+    Auth_WorldSelectRequest = 0x7FE7,
 
     [PacketMetadata(ServerType.Auth, PacketDirection.ServerToClient, "recv_select_world_r")]
     Auth_WorldSelectResponse = 0x3491,
@@ -53,7 +53,7 @@ public enum PacketType : ushort
     AuthenticateFailureResponse = 0xD845,
 
     [PacketMetadata(ServerType.Msg, PacketDirection.ClientToServer, "send_avatar_create")]
-    AvatarCreateRequest = 0x29A4, 
+    AvatarCreateRequest = 0x29A4,
 
     [PacketMetadata(ServerType.Msg, PacketDirection.ServerToClient, "recv_avatar_create_r")]
     AvatarCreateResponse = 0x788F,
@@ -139,7 +139,7 @@ public enum PacketType : ushort
     [PacketMetadata(ServerType.Unknown, PacketDirection.Unknown, "")]
     AvatarNotifyData = 0x7D78, // 32120
 
-    [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient , "recv_notify_move_chara")]
+    [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "recv_notify_move_chara")]
     AvatarNotifyMove = 0xAADB,
 
     [PacketMetadata(ServerType.Unknown, PacketDirection.Unknown, "")]
