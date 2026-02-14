@@ -27,9 +27,8 @@ public class AreaAvatarGetDataHandler(ILogger<AreaAvatarGetDataHandler> logger, 
         if (cha == null)
             return;
         _logger.LogInformation("Processing AvatarGetDataRequest for Character: {CharacterName} (ID: {CharacterId})", cha.Name, cha.Id);
-        //TODO: Figure out ID's. Maybe merge CharacterData with AvatarData/CharaData?
-        var charaData = new CharaData(0, 0, cha.Name);
-        charaData.Visual.CharacterID = 0;
+        var charaData = new CharaData(cha.ModelId, (uint)cha.Id, cha.Name);
+        charaData.Visual.CharacterID = (uint)cha.Id;
         charaData.Visual.BloodType = cha.BloodType;
         charaData.Visual.Month = (byte)cha.Birthdate.Month;
         charaData.Visual.Day = (byte)cha.Birthdate.Day;
