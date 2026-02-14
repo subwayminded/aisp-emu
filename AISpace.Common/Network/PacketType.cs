@@ -404,7 +404,7 @@ public enum PacketType : ushort
     PostTalkResponse = 0x2407, // 9223
 
     [PacketMetadata(ServerType.Msg, PacketDirection.ClientToServer, "send_cmd_exec")]
-    CmdExecRequest = 0x640F, // 25615 – client command (e.g. /help)
+    CmdExecRequest = 0x2E64, // 11876 – client command (e.g. /help); decompiled *v4 = 0x2E64
 
     [PacketMetadata(ServerType.Msg, PacketDirection.ServerToClient, "recv_cmd_exec_r")]
     CmdExecResponse = 0x6F32, // 28466 – acknowledgment for CmdExecRequest
