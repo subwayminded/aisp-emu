@@ -5,6 +5,7 @@ namespace AISpace.Common.Network.Packets.Area;
 public class AvatarMove(MovementData[] Moves) : IPacket<AvatarMove>
 {
     public MovementData[] Moves = Moves;
+
     public static AvatarMove FromBytes(ReadOnlySpan<byte> data)
     {
         var packetReader = new PacketReader(data);
