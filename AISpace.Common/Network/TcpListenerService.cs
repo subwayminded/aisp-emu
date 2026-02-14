@@ -164,7 +164,7 @@ public class TcpListenerService(ILogger<TcpListenerService> logger, Channel<Pack
                         }
                         break;
                     }
-                    
+
                     int sizeBytes = 1 + headerParam;
                     if (sizeBytes > 4)
                         sizeBytes = 4;
