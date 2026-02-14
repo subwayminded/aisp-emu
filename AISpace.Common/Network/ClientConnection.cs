@@ -86,7 +86,8 @@ public class ClientConnection(Guid _Id, EndPoint _RemoteEndPoint, NetworkStream 
 
     public async Task SendAsync(PacketType type, byte[] payload, CancellationToken ct = default)
     {
-        logger.LogInformation("Sending: {type}, {len}", type, payload.Length);
+        if (type != PacketType.Ping)
+            logger.LogInformation("Sending: {type}, {len}", type, payload.Length);
         try
         {
             var writer = new PacketWriter();

@@ -1,4 +1,4 @@
-﻿using System.Buffers.Binary;
+using System.Buffers.Binary;
 using System.Collections.Concurrent;
 using System.Net.Sockets;
 using System.Threading.Channels;
@@ -91,7 +91,8 @@ public class TcpListenerService(ILogger<TcpListenerService> logger, Channel<Pack
                 int payloadLength = packetLength - 2;
                 byte[] payload = new byte[payloadLength];
                 await ReadExactAsync(stream, payload, _cts.Token);
-                logger.LogInformation("Recieving packet {PacketType} ({Length} bytes): {Hex}", type, payload.Length, BitConverter.ToString(payload));
+                if (type != PacketType.Ping)
+                    logger.LogInformation("Recieving packet {PacketType} ({Length} bytes): {Hex}", type, payload.Length, BitConverter.ToString(payload));
                 channel.Writer.TryWrite(new Packet(context, type, payload, typeShort));
             }
         }
@@ -105,7 +106,6 @@ public class TcpListenerService(ILogger<TcpListenerService> logger, Channel<Pack
 
     private async Task HandleCryptoClientAsync(ClientConnection context)
     {
-        int headerSize = 4;
         logger.LogInformation("{name} Handling new Encrypted client {Id}", Name, context.Id);
         // Read RSA N value
         byte[] rsaN = new byte[16];
@@ -135,19 +135,69 @@ public class TcpListenerService(ILogger<TcpListenerService> logger, Channel<Pack
                 // Decrypt all packet
                 context.DecryptBlocks(cipher);
 
-                // Loop through all messages in Packet
+                // Loop through all messages in Packet (VCE codec - see txtaisp/crates/aisp_server/src/net/vce_codec.rs).
+                // First byte (codec): high nibble = type (0=PacketData, 1=Ping, 2=Pong, 3=Terminated, 4=DirectContact),
+                //                   low nibble = size bytes for type 0 (0=1 byte, 1=2 bytes, 2=3, 3=4) so large payloads (e.g. CmdExec 3944) fit.
+                // PacketData: [codec 1][len 1..4 bytes LE][payload] where payload = [type 2][body]; data_start = 2 + header_param.
                 int offset = 0;
                 while (offset < msgSize)
                 {
-                    byte codecType = cipher[offset];
-                    int msgLen = cipher[offset + 1];
-                    var typeRaw = BinaryPrimitives.ReadUInt16LittleEndian(cipher.AsSpan(offset + 2, 2));
-                    var type = (PacketType)typeRaw;
-                    ReadOnlySpan<byte> payload = cipher.AsSpan(offset + headerSize, msgLen - 2);
+                    if (offset + 2 > msgSize)
+                        break;
 
+                    byte codecType = cipher[offset];
+                    int headerType = (codecType >> 4) & 0xF;
+                    int headerParam = codecType & 0xF;
+                    if (headerType != 0)
+                    {
+                        // Ping (1), Pong (2), Terminated (3), DirectContact (4) - skip or handle separately
+                        if (headerType == 1 && msgSize - offset >= 9) { offset += 9; continue; }
+                        if (headerType == 2 && msgSize - offset >= 9) { offset += 9; continue; }
+                        if (headerType == 3 && msgSize - offset >= 5) { offset += 5; continue; }
+                        break;
+                    }
+                    // Type 0 (PacketData): size is 1..4 bytes LE depending on headerParam; Rust data_start = 2 + header_param
+                    int sizeBytes = 1 + headerParam;
+                    if (sizeBytes > 4) sizeBytes = 4;
+                    int payloadStartOffset = 2 + headerParam; // codec(1) + size(bytes 1..1+param); payload = [type 2][body] starts here
+                    if (offset + payloadStartOffset > msgSize)
+                        break;
+                    int packetSize = cipher[offset + 1];
+                    if (sizeBytes >= 2) packetSize |= cipher[offset + 2] << 8;
+                    if (sizeBytes >= 3) packetSize |= cipher[offset + 3] << 16;
+                    if (sizeBytes >= 4) packetSize |= cipher[offset + 4] << 24;
+                    int payloadLen = packetSize; // full payload = [type 2][body]
+                    int payloadStart = offset + payloadStartOffset;
+                    int payloadEnd = payloadStart + payloadLen;
+
+                    if (payloadLen < 0 || payloadEnd > msgSize)
+                    {
+                        // Single-message block (no codec): [type 2][payload]
+                        if (offset == 0 && msgSize >= 2)
+                        {
+                            var singleTypeRaw = BinaryPrimitives.ReadUInt16LittleEndian(cipher.AsSpan(0, 2));
+                            var singleType = (PacketType)singleTypeRaw;
+                            int singleBodyLen = msgSize - 2;
+                            ReadOnlySpan<byte> singlePayload = singleBodyLen > 0 ? cipher.AsSpan(2, singleBodyLen) : [];
+                            if (singleType != PacketType.Ping)
+                                logger.LogInformation("Recieving packet {PacketType} ({Length} bytes): {Hex}", singleType, singlePayload.Length, BitConverter.ToString(singlePayload.ToArray()));
+                            channel.Writer.TryWrite(new Packet(context, singleType, singlePayload.ToArray(), singleTypeRaw));
+                        }
+                        else if (payloadLen >= 0)
+                            logger.LogWarning("Encrypted packet: payload past msgSize (offset {Offset} packetSize {PacketSize} msgSize {MsgSize})", offset, packetSize, msgSize);
+                        break;
+                    }
+
+                    // Payload = [type 2][body]; we pass body to handler (same as before: packet payload does not include type)
+                    var typeRaw = BinaryPrimitives.ReadUInt16LittleEndian(cipher.AsSpan(payloadStart, 2));
+                    var type = (PacketType)typeRaw;
+                    int bodyLen = payloadLen - 2;
+                    ReadOnlySpan<byte> payload = bodyLen > 0 ? cipher.AsSpan(payloadStart + 2, bodyLen) : [];
+                    if (type != PacketType.Ping)
+                        logger.LogInformation("Recieving packet {PacketType} ({Length} bytes): {Hex}", type, payload.Length, BitConverter.ToString(payload.ToArray()));
                     channel.Writer.TryWrite(new Packet(context, type, payload.ToArray(), typeRaw));
 
-                    offset += headerSize + payload.Length;
+                    offset = payloadEnd;
                 }
             }
         }
