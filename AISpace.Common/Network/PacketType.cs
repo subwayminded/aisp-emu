@@ -1,4 +1,4 @@
-﻿namespace AISpace.Common.Network;
+namespace AISpace.Common.Network;
 
 public enum ServerType
 {
@@ -397,8 +397,17 @@ public enum PacketType : ushort
     [PacketMetadata(ServerType.Unknown, PacketDirection.Unknown, "")]
     Ping = 0xC202, // 49666
 
-    [PacketMetadata(ServerType.Unknown, PacketDirection.Unknown, "")]
+    [PacketMetadata(ServerType.Msg, PacketDirection.ClientToServer, "send_talk_post")]
     PostTalkRequest = 0xEB2E, // 60206
+
+    [PacketMetadata(ServerType.Msg, PacketDirection.ServerToClient, "recv_talk_post_r")]
+    PostTalkResponse = 0x2407, // 9223
+
+    [PacketMetadata(ServerType.Msg, PacketDirection.ClientToServer, "send_cmd_exec")]
+    CmdExecRequest = 0x640F, // 25615 – client command (e.g. /help)
+
+    [PacketMetadata(ServerType.Msg, PacketDirection.ServerToClient, "recv_cmd_exec_r")]
+    CmdExecResponse = 0x6F32, // 28466 – acknowledgment for CmdExecRequest
 
     [PacketMetadata(ServerType.Unknown, PacketDirection.Unknown, "")]
     RoboGetListRequest = 0x44CE, // 17614
