@@ -2,7 +2,7 @@ namespace AISpace.Common.Network.Packets.Msg;
 
 public class CmdExecRequest(uint messageId, string command, uint argCount, List<string>? arguments = null) : IPacket<CmdExecRequest>
 {
-    const int MaxArgs= 10;
+    const int MaxArgs = 10;
     const int ArgLength = 384;
     const int CmdLength = 96;
 
