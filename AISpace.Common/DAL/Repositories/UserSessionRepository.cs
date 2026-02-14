@@ -1,4 +1,4 @@
-﻿using AISpace.Common.DAL.Entities;
+using AISpace.Common.DAL.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace AISpace.Common.DAL.Repositories;
@@ -24,6 +24,8 @@ public class UserSessionRepository(MainContext db) : IUserSessionRepository
         var now = DateTime.UtcNow;
         return await db.UserSessions
             .Include(s => s.User)
+                .ThenInclude(u => u.Characters)
+                    .ThenInclude(c => c.Equipment)
             .Where(s => s.OTP == otp && s.ExpiresAt > now)
             .SingleOrDefaultAsync(ct);
     }
