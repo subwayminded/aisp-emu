@@ -139,7 +139,7 @@ public enum PacketType : ushort
     [PacketMetadata(ServerType.Unknown, PacketDirection.Unknown, "")]
     AvatarNotifyData = 0x7D78, // 32120
 
-    [PacketMetadata(ServerType.Area, PacketDirection.ClientToServer, "recv_notify_move_chara")]
+    [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient , "recv_notify_move_chara")]
     AvatarNotifyMove = 0xAADB,
 
     [PacketMetadata(ServerType.Unknown, PacketDirection.Unknown, "")]
@@ -382,8 +382,8 @@ public enum PacketType : ushort
     [PacketMetadata(ServerType.Unknown, PacketDirection.Unknown, "")]
     NiconiCommonsBaseListResponse = 0xE60C, // 58892
 
-    [PacketMetadata(ServerType.Area, PacketDirection.ClientToServer, "recv_notify_move_chara")]
-    NotifyMoveData = 0x9483, // 38019
+    [PacketMetadata(ServerType.Area, PacketDirection.ClientToServer, "send_move_avatar")]
+    AvatarMoveRequest = 0x9483, // 38019
 
     [PacketMetadata(ServerType.Unknown, PacketDirection.Unknown, "")]
     NpcGetDataRequest = 0x461B, // 17947

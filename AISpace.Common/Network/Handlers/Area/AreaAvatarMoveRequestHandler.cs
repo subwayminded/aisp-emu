@@ -3,11 +3,11 @@ using NLog;
 
 namespace AISpace.Common.Network.Handlers.Area;
 
-public class AreaNotifyMoveDataHandler : IPacketHandler
+public class AreaAvatarMoveRequestHandler : IPacketHandler
 {
-    public PacketType RequestType => PacketType.NotifyMoveData;
+    public PacketType RequestType => PacketType.AvatarMoveRequest;
 
-    public PacketType ResponseType => PacketType.NotifyMoveData;
+    public PacketType ResponseType => PacketType.AvatarMoveRequest;
 
     public MessageDomain Domain => MessageDomain.Area;
 
