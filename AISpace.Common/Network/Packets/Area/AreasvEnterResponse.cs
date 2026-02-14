@@ -2,7 +2,6 @@
 
 public class AreasvEnterResponse(uint Result, uint ObjID) : IPacket<AreasvEnterResponse>
 {
-
     public static AreasvEnterResponse FromBytes(ReadOnlySpan<byte> data)
     {
         throw new NotImplementedException();
@@ -16,4 +15,3 @@ public class AreasvEnterResponse(uint Result, uint ObjID) : IPacket<AreasvEnterR
         return writer.ToBytes();
     }
 }
-

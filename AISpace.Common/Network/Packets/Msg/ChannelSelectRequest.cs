@@ -3,6 +3,7 @@
 public class ChannelSelectRequest : IPacket<ChannelSelectRequest>
 {
     public uint ChannelID;
+
     public static ChannelSelectRequest FromBytes(ReadOnlySpan<byte> data)
     {
         ChannelSelectRequest req = new();

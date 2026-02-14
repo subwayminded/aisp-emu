@@ -21,10 +21,13 @@ public ref struct PacketReader(ReadOnlySpan<byte> buffer)
     }
 
     public byte ReadByte() => ReadSpan(1)[0];
+
     public sbyte ReadSByte() => (sbyte)ReadSpan(1)[0];
 
     public float ReadFloat() => BinaryPrimitives.ReadSingleLittleEndian(ReadSpan(sizeof(float)));
+
     public ushort ReadUShort() => BinaryPrimitives.ReadUInt16LittleEndian(ReadSpan(sizeof(ushort)));
+
     public uint ReadUInt() => BinaryPrimitives.ReadUInt32LittleEndian(ReadSpan(sizeof(uint)));
 
     public ReadOnlySpan<byte> ReadBytes(int count) => ReadSpan(count);

@@ -10,7 +10,7 @@ public class UccVoiceBaseListResponse : IPacket<UccVoiceBaseListResponse>
     public byte[] ToBytes()
     {
         var writer = new PacketWriter();
-        writer.Write((uint)0);//Result
+        writer.Write((uint)0); //Result
         writer.Write((uint)0); // voice_data
         return writer.ToBytes();
     }

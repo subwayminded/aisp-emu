@@ -10,7 +10,7 @@ public class EmotionGetObtainedListResponse(uint Result = 0) : IPacket<EmotionGe
     public byte[] ToBytes()
     {
         var writer = new PacketWriter();
-        writer.Write(Result);//Result
+        writer.Write(Result); //Result
         writer.Write((uint)0); // emotion_ids
         return writer.ToBytes();
     }

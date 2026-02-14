@@ -11,7 +11,7 @@ public class EmotionGetBaseListResponse(uint Result = 0) : IPacket<EmotionGetBas
     {
         var writer = new PacketWriter();
         writer.Write(Result);
-        writer.Write((uint)0);//Array length?
+        writer.Write((uint)0); //Array length?
         return writer.ToBytes();
     }
 }

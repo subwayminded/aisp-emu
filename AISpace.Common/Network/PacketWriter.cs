@@ -36,20 +36,28 @@ public class PacketWriter
     }
 
     public void Write(ushort value) => WriteLE(value, BinaryPrimitives.WriteUInt16LittleEndian);
+
     public void Write(short value) => WriteLE(value, BinaryPrimitives.WriteInt16LittleEndian);
+
     public void Write(ulong value) => WriteLE(value, BinaryPrimitives.WriteUInt64LittleEndian);
+
     public void Write(float value) => WriteLE(value, BinaryPrimitives.WriteSingleLittleEndian);
+
     public void Write(uint value) => WriteLE(value, BinaryPrimitives.WriteUInt32LittleEndian);
+
     public void Write(int value) => WriteLE(value, BinaryPrimitives.WriteInt32LittleEndian);
+
     public void Write(byte value) => _stream.WriteByte(value);
+
     public void Write(sbyte value) => _stream.WriteByte((byte)value);
+
     public void Write(ReadOnlySpan<byte> source) => _stream.Write(source);
 
     public void Write(string value, string encoderName = "ASCII")
     {
         var encoder = Encoding.GetEncoding(encoderName);
         var size = encoder.GetByteCount(value);
-        Span<byte> buffer = stackalloc byte[size+1];
+        Span<byte> buffer = stackalloc byte[size + 1];
         encoder.GetBytes(value, buffer);
         buffer[size] = 0x00;
         _stream.Write(buffer);

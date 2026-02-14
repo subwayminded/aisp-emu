@@ -1,7 +1,7 @@
 ﻿namespace AISpace.Common.Network.Packets;
 
-
-public interface IPacket<TSelf> where TSelf : IPacket<TSelf>
+public interface IPacket<TSelf>
+    where TSelf : IPacket<TSelf>
 {
     //void Write(ref PacketWriter writer);
 

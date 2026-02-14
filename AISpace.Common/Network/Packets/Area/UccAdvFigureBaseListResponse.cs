@@ -10,7 +10,7 @@ public class UccAdvFigureBaseListResponse : IPacket<UccAdvFigureBaseListResponse
     public byte[] ToBytes()
     {
         var writer = new PacketWriter();
-        writer.Write((uint)0);//Result
+        writer.Write((uint)0); //Result
         writer.Write((uint)0); // adv_figures
         return writer.ToBytes();
     }

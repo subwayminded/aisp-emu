@@ -6,6 +6,7 @@ public class ChannelSelectResponse(uint result, Game.ServerInfo serverInfo, uint
     public Game.ServerInfo serverInfo = serverInfo;
     public uint MapID = mapId;
     public uint MapSerialID = mapSerialId;
+
     public static ChannelSelectResponse FromBytes(ReadOnlySpan<byte> data)
     {
         throw new NotImplementedException();

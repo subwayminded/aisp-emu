@@ -10,9 +10,8 @@ public class RoboVoiceTypeUpdateResponse : IPacket<RoboVoiceTypeUpdateResponse>
     public byte[] ToBytes()
     {
         var writer = new PacketWriter();
-        writer.Write((uint)0);//Result
-        writer.Write((byte)0);//VoiceType
+        writer.Write((uint)0); //Result
+        writer.Write((byte)0); //VoiceType
         return writer.ToBytes();
     }
 }
-

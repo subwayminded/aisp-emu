@@ -10,7 +10,7 @@ public class MyRoomGetFurnitureResponse : IPacket<MyRoomGetFurnitureResponse>
     public byte[] ToBytes()
     {
         var writer = new PacketWriter();
-        writer.Write((uint)0);//Result
+        writer.Write((uint)0); //Result
         return writer.ToBytes();
     }
 }

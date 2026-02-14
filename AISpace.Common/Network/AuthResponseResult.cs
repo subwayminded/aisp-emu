@@ -8,5 +8,5 @@ public enum AuthResponseResult : uint
     AccountBanned = 3,
     ServerFull = 4,
     Maintenance = 5,
-    VersionMismatch = 6
+    VersionMismatch = 6,
 }

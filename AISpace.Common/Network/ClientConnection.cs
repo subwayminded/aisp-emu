@@ -13,7 +13,7 @@ public enum ClientState
     Init = 1,
     ConnectedToAuth = 2,
     ConnectedToMsg = 3,
-    ConnectedToArea=4,
+    ConnectedToArea = 4,
 }
 
 public class ClientConnection(Guid _Id, EndPoint _RemoteEndPoint, NetworkStream _ns, ILogger<ClientConnection> logger)
@@ -31,7 +31,6 @@ public class ClientConnection(Guid _Id, EndPoint _RemoteEndPoint, NetworkStream 
     public NetworkStream Stream = _ns;
     public int connectedChannel = 0;
     public DateTimeOffset lastPing;
-
 
     public bool IsAuthenticated => User != null;
     public User? User;
@@ -75,7 +74,6 @@ public class ClientConnection(Guid _Id, EndPoint _RemoteEndPoint, NetworkStream 
             throw new ArgumentException("Data length not multiple of 16");
         for (int offset = 0; offset < data.Length; offset += 16)
             EncryptBlock(data[offset..(offset + 16)]);
-
     }
 
     static byte[] PrefixLengthUInt32Le(ReadOnlySpan<byte> cipher, int innerSize)
@@ -106,15 +104,13 @@ public class ClientConnection(Guid _Id, EndPoint _RemoteEndPoint, NetworkStream 
                 return;
             }
 
-
             int offset = 0;
 
             while (offset < dataToSend.Length)
             {
                 int plainChunkSize = Math.Min(MaxChunkSize, dataToSend.Length - offset);
 
-                ReadOnlySpan<byte> plainChunk =
-                    dataToSend.AsSpan(offset, plainChunkSize);
+                ReadOnlySpan<byte> plainChunk = dataToSend.AsSpan(offset, plainChunkSize);
 
                 byte[] padded = PadToBlock(plainChunk, BlockSize);
 
@@ -142,5 +138,6 @@ public class ClientConnection(Guid _Id, EndPoint _RemoteEndPoint, NetworkStream 
         return buffer;
     }
 
-    public async Task SendAsync<T>(PacketType type, IPacket<T> packet, CancellationToken ct = default) where T : IPacket<T> => await SendAsync(type, packet.ToBytes(), ct);
+    public async Task SendAsync<T>(PacketType type, IPacket<T> packet, CancellationToken ct = default)
+        where T : IPacket<T> => await SendAsync(type, packet.ToBytes(), ct);
 }

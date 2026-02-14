@@ -13,7 +13,7 @@ public class PingResponse(uint Time) : IPacket<PingResponse>
     public byte[] ToBytes()
     {
         var writer = new PacketWriter();
-        writer.Write(Time);//Result
+        writer.Write(Time); //Result
         return writer.ToBytes();
     }
 }

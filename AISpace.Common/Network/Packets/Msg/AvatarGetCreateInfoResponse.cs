@@ -2,13 +2,11 @@
 
 public class AvatarGetCreateInfoResponse : IPacket<AvatarGetCreateInfoResponse>
 {
-
     private readonly List<uint> DefaultMaleBuilds = [1001011, 1001021, 1001031];
     private readonly List<byte> DefaultMaleFaces = [0, 1, 2, 3];
     private readonly List<uint> DefaultMaleHairStyles = [10920010, 10920020, 10920040];
     private readonly List<byte> DefaultMaleHairColours = [0, 4, 1, 2, 3];
     private readonly List<Game.ItemSlotInfo> DefaultMaleEquipment = [];
-
 
     private readonly List<uint> DefaultFemaleBuilds = [1002011, 1002021, 1002031];
     private readonly List<byte> DefaultFemaleFaces = [0, 1, 2, 3];
@@ -23,15 +21,15 @@ public class AvatarGetCreateInfoResponse : IPacket<AvatarGetCreateInfoResponse>
 
     public byte[] ToBytes()
     {
-        DefaultMaleEquipment.Add(new Game.ItemSlotInfo(10100220, 0));//Shirt
-        DefaultMaleEquipment.Add(new Game.ItemSlotInfo(10200100, 0));//Pants
-        DefaultMaleEquipment.Add(new Game.ItemSlotInfo(10400030, 0));//Socks
-        DefaultMaleEquipment.Add(new Game.ItemSlotInfo(10500070, 0));//Shoes
+        DefaultMaleEquipment.Add(new Game.ItemSlotInfo(10100220, 0)); //Shirt
+        DefaultMaleEquipment.Add(new Game.ItemSlotInfo(10200100, 0)); //Pants
+        DefaultMaleEquipment.Add(new Game.ItemSlotInfo(10400030, 0)); //Socks
+        DefaultMaleEquipment.Add(new Game.ItemSlotInfo(10500070, 0)); //Shoes
 
-        DefaultFemaleEquipment.Add(new Game.ItemSlotInfo(10100060, 0));//Shirt
-        DefaultFemaleEquipment.Add(new Game.ItemSlotInfo(10200090, 0));//Shorts
-        DefaultFemaleEquipment.Add(new Game.ItemSlotInfo(10400000, 0));//Socks
-        DefaultFemaleEquipment.Add(new Game.ItemSlotInfo(10500010, 0));//Shoes
+        DefaultFemaleEquipment.Add(new Game.ItemSlotInfo(10100060, 0)); //Shirt
+        DefaultFemaleEquipment.Add(new Game.ItemSlotInfo(10200090, 0)); //Shorts
+        DefaultFemaleEquipment.Add(new Game.ItemSlotInfo(10400000, 0)); //Socks
+        DefaultFemaleEquipment.Add(new Game.ItemSlotInfo(10500010, 0)); //Shoes
         var writer = new PacketWriter();
 
         //DefaultMaleBuilds

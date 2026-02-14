@@ -10,13 +10,12 @@ using Microsoft.Extensions.Logging;
 namespace AISpace.Common.Network;
 
 public record AuthChannel(Channel<Packet> Channel);
+
 public record MsgChannel(Channel<Packet> Channel);
+
 public record AreaChannel(Channel<Packet> Channel);
 
-public class TcpListenerService(ILogger<TcpListenerService> logger,
-        Channel<Packet> channel, string Name,
-        int port,
-        ILoggerFactory loggerFactory) : BackgroundService
+public class TcpListenerService(ILogger<TcpListenerService> logger, Channel<Packet> channel, string Name, int port, ILoggerFactory loggerFactory) : BackgroundService
 {
     private readonly TcpListener _tcpListener = new(System.Net.IPAddress.Parse("0.0.0.0"), port);
     private readonly CancellationTokenSource _cts = new();
@@ -32,11 +31,11 @@ public class TcpListenerService(ILogger<TcpListenerService> logger,
         channel.Writer.Complete();
         return base.StopAsync(ct);
     }
+
     protected override async Task ExecuteAsync(CancellationToken ct)
     {
         _tcpListener.Start();
         logger.LogInformation("Server {name} started on {LocalEP}", Name, _tcpListener.LocalEndpoint);
-
 
         while (!_cts.Token.IsCancellationRequested)
         {
@@ -50,14 +49,11 @@ public class TcpListenerService(ILogger<TcpListenerService> logger,
             {
                 _ = HandleCryptoClientAsync(context);
             }
-                
             else
             {
                 context.encrypted = false;
                 _ = HandleClientAsync(context);
             }
-                
-
         }
     }
 
@@ -65,10 +61,10 @@ public class TcpListenerService(ILogger<TcpListenerService> logger,
     {
         var buf = new byte[1];
         int n = await s.ReceiveAsync(buf, SocketFlags.Peek, ct);
-        if (n == 0) throw new EndOfStreamException();
+        if (n == 0)
+            throw new EndOfStreamException();
         return buf[0];
     }
-
 
     private async Task HandleClientAsync(ClientConnection context)
     {
@@ -107,9 +103,6 @@ public class TcpListenerService(ILogger<TcpListenerService> logger,
         logger.LogInformation("Client disconnected: {RemoteEndPoint} ({Id})", context.RemoteEndPoint, context.Id);
     }
 
-
-
-
     private async Task HandleCryptoClientAsync(ClientConnection context)
     {
         int headerSize = 4;
@@ -147,7 +140,7 @@ public class TcpListenerService(ILogger<TcpListenerService> logger,
                 while (offset < msgSize)
                 {
                     byte codecType = cipher[offset];
-                    int msgLen = cipher[offset+1];
+                    int msgLen = cipher[offset + 1];
                     var typeRaw = BinaryPrimitives.ReadUInt16LittleEndian(cipher.AsSpan(offset + 2, 2));
                     var type = (PacketType)typeRaw;
                     ReadOnlySpan<byte> payload = cipher.AsSpan(offset + headerSize, msgLen - 2);
@@ -170,9 +163,9 @@ public class TcpListenerService(ILogger<TcpListenerService> logger,
         while (totalRead < buffer.Length)
         {
             int read = await stream.ReadAsync(buffer[totalRead..], ct);
-            if (read == 0) throw new IOException("Disconnected");
+            if (read == 0)
+                throw new IOException("Disconnected");
             totalRead += read;
         }
     }
-
 }

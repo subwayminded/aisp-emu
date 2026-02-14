@@ -6,6 +6,7 @@ public class PostTalkRequest(uint messageID, uint distID, string message, uint b
     public uint DistID = distID;
     public string Message = message;
     public uint BalloonID = balloonID;
+
     //BalloonID is either normal talk or Shout
 
     public static PostTalkRequest FromBytes(ReadOnlySpan<byte> data)

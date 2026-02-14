@@ -24,15 +24,14 @@ public class AvatarDataResponse(uint result, string name, uint modelId, uint isl
         var _equips = Equips;
         while (_equips.Count < 30)
             AddEquip(0, 0);
-        
-        
+
         writer.Write(name);
         writer.Write(modelId);
         writer.Write(Visual.ToBytes());
         writer.Write(islandId);
         writer.Write(slotId);
         foreach (var equip in _equips)
-           writer.Write(equip.ToBytes());
+            writer.Write(equip.ToBytes());
         return writer.ToBytes();
     }
 }

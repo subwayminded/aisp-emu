@@ -8,6 +8,7 @@ public class AvatarCreateRequest : IPacket<AvatarCreateRequest>
     public uint modelId;
     public CharaVisual visual = new(0, 0, 0, 0, 0, 0, 0);
     public uint slotId;
+
     public static AvatarCreateRequest FromBytes(ReadOnlySpan<byte> data)
     {
         var reader = new PacketReader(data);
@@ -16,7 +17,7 @@ public class AvatarCreateRequest : IPacket<AvatarCreateRequest>
             AvatarName = reader.ReadString(),
             modelId = reader.ReadUInt(),
             visual = CharaVisual.FromBytes(reader.ReadBytes(19)),
-            slotId = reader.ReadUInt()
+            slotId = reader.ReadUInt(),
         };
 
         return createRequest;

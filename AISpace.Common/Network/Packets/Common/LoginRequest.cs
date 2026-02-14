@@ -4,6 +4,7 @@ public class LoginRequest(uint Userid, ReadOnlySpan<byte> Otp) : IPacket<LoginRe
 {
     public uint _userId = Userid;
     public byte[] _otp = Otp.ToArray();
+
     public static LoginRequest FromBytes(ReadOnlySpan<byte> data)
     {
         PacketReader reader = new(data);

@@ -24,8 +24,7 @@ public class PacketDispatcher
         }
         else
         {
-            _logger.LogWarning("No handler for {Domain}:{PacketType} (payload length: {Length}). Raw data: {Hex}",
-                domain, type, payload.Length, BitConverter.ToString(payload));
+            _logger.LogWarning("No handler for {Domain}:{PacketType} (payload length: {Length}). Raw data: {Hex}", domain, type, payload.Length, BitConverter.ToString(payload));
         }
     }
 }

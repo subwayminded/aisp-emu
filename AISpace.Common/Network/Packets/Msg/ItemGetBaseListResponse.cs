@@ -12,10 +12,12 @@ public class ItemGetBaseListResponse : IPacket<ItemGetBaseListResponse>
         Items = [];
         foreach (var row in File.ReadLines("testitems.csv"))
         {
-            if (string.IsNullOrEmpty(row)) continue;
+            if (string.IsNullOrEmpty(row))
+                continue;
             var columns = row.Split(',');
 
-            if (columns.Length < 3) continue;
+            if (columns.Length < 3)
+                continue;
 
             var temp = new ItemData
             {
@@ -24,11 +26,12 @@ public class ItemGetBaseListResponse : IPacket<ItemGetBaseListResponse>
                 ItemId = uint.Parse(columns[0]),
                 Socket1 = uint.Parse(columns[1]),
                 Socket2 = uint.Parse(columns[1]),
-                Name = columns[2]
+                Name = columns[2],
             };
             Items.Add(temp);
         }
     }
+
     public static ItemGetBaseListResponse FromBytes(ReadOnlySpan<byte> data)
     {
         throw new NotImplementedException();

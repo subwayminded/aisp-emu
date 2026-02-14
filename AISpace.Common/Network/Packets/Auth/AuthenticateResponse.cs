@@ -2,10 +2,8 @@
 
 public class AuthenticateResponse(uint id) : IPacket<AuthenticateResponse>
 {
-
     public static AuthenticateResponse FromBytes(ReadOnlySpan<byte> data)
     {
-
         throw new NotImplementedException();
     }
 

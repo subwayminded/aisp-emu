@@ -2,10 +2,8 @@
 
 public class AuthenticateFailureResponse(AuthResponseResult Result) : IPacket<AuthenticateFailureResponse>
 {
-
     public static AuthenticateFailureResponse FromBytes(ReadOnlySpan<byte> data)
     {
-
         throw new NotImplementedException();
     }
 

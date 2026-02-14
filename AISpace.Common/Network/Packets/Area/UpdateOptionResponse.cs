@@ -10,8 +10,7 @@ public class UpdateOptionResponse : IPacket<UpdateOptionResponse>
     public byte[] ToBytes()
     {
         var writer = new PacketWriter();
-        writer.Write((uint)1);//Result
+        writer.Write((uint)1); //Result
         return writer.ToBytes();
     }
 }
-

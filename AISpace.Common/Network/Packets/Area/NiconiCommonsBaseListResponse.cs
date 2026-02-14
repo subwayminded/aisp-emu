@@ -10,7 +10,7 @@ public class NiconiCommonsBaseListResponse : IPacket<NiconiCommonsBaseListRespon
     public byte[] ToBytes()
     {
         var writer = new PacketWriter();
-        writer.Write((uint)0);//Result
+        writer.Write((uint)0); //Result
         writer.Write((uint)0); // commons_base
         return writer.ToBytes();
     }

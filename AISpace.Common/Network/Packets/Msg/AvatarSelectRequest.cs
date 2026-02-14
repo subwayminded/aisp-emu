@@ -3,6 +3,7 @@
 public class AvatarSelectRequest(uint slotId) : IPacket<AvatarSelectRequest>
 {
     public uint SlotId = slotId;
+
     public static AvatarSelectRequest FromBytes(ReadOnlySpan<byte> data)
     {
         var reader = new PacketReader(data);
