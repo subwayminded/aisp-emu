@@ -14,4 +14,3 @@ public class MapEnterResponse : IPacket<MapEnterResponse>
         return writer.ToBytes();
     }
 }
-

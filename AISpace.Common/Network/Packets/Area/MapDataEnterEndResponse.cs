@@ -6,6 +6,7 @@ public class MapDataEnterEndResponse : IPacket<MapDataEnterEndResponse>
     {
         throw new NotImplementedException();
     }
+
     public byte[] ToBytes()
     {
         var writer = new PacketWriter();
