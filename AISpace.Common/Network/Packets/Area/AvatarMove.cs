@@ -1,4 +1,5 @@
 ﻿using AISpace.Common.Game;
+
 namespace AISpace.Common.Network.Packets.Area;
 
 public class AvatarMove(MovementData[] Moves) : IPacket<AvatarMove>
