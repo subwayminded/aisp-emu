@@ -35,11 +35,11 @@ public class AreaAvatarGetDataHandler(ILogger<AreaAvatarGetDataHandler> logger, 
         charaData.Visual.Gender = (uint)cha.Gender;
         charaData.Visual.Face = (byte)cha.FaceType;
         charaData.Visual.Hairstyle = cha.Hairstyle;
-        // Fill 30 slots by SlotIndex so client gets correct slot mapping
+
         for (byte slot = 0; slot < 30; slot++)
         {
             var eq = cha.Equipment.FirstOrDefault(e => e.SlotIndex == slot);
-            charaData.AddEquip(eq != null ? (uint)eq.ItemId : 10100220, slot);
+            charaData.AddEquip(eq != null ? (uint)eq.ItemId : 0, slot);
         }
         var avatarData = new AvatarData(0, charaData);
         var notifyData = new AvatarNotifyData(0, avatarData);
