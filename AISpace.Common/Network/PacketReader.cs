@@ -1,4 +1,4 @@
-﻿using System.Buffers.Binary;
+using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -29,6 +29,8 @@ public ref struct PacketReader(ReadOnlySpan<byte> buffer)
     public ushort ReadUShort() => BinaryPrimitives.ReadUInt16LittleEndian(ReadSpan(sizeof(ushort)));
 
     public uint ReadUInt() => BinaryPrimitives.ReadUInt32LittleEndian(ReadSpan(sizeof(uint)));
+
+    public ulong ReadULong() => BinaryPrimitives.ReadUInt64LittleEndian(ReadSpan(sizeof(ulong)));
 
     public ReadOnlySpan<byte> ReadBytes(int count) => ReadSpan(count);
 
