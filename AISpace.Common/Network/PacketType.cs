@@ -292,6 +292,48 @@ public enum PacketType : ushort
     [PacketMetadata(ServerType.Unknown, PacketDirection.Unknown, "")]
     ItemGetListResponse = 0xA522, // 42274
 
+    [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "recv_item_create")]
+    ItemCreateNotify = 0x6ACB, // 27339 – item object created in world (has move_data.pos), not inventory list
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "recv_item_update_list")]
+    ItemUpdateListNotify = 0x084E, // 2126 – inventory list slot update: place, serialid, targetid
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "recv_get_itembox_item_list_r")]
+    ItemboxGetItemListResponse = 0xA137, // 41271 – itembox list result (4-byte result only, like get_item_list_r)
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "recv_itembox_item_create")]
+    ItemboxItemCreateNotify = 0x8782, // 34706 – one item in itembox (24-byte layout like recv_item_create)
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ClientToServer, "send_item_equip_start")]
+    ItemEquipStartRequest = 0x3768, // 14184
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "recv_item_equip_start_r")]
+    ItemEquipStartResponse = 0x6448, // 25672
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "recv_item_equip_force_started")]
+    ItemEquipForceStarted = 0x7E82, // 32386
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ClientToServer, "send_item_try_equip_fix")]
+    ItemTryEquipFixRequest = 0x3CDE, // 15582
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "recv_item_try_equip_fix_r")]
+    ItemTryEquipFixResponse = 0x8D54, // 36180
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ClientToServer, "send_item_try_equip_replace")]
+    ItemTryEquipReplaceRequest = 0x0083, // 131
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "recv_item_try_equipped")]
+    ItemTryEquipped = 0xBB7C, // 47996
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ClientToServer, "send_item_equip_end")]
+    ItemEquipEndRequest = 0x1CC2, // 7362
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "recv_item_equip_end_r")]
+    ItemEquipEndResponse = 0xDF80, // 57216
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "recv_item_equip_ended")]
+    ItemEquipEnded = 0xB4A8, // 46248
+
     [PacketMetadata(ServerType.Unknown, PacketDirection.Unknown, "")]
     MailBoxGetDataRequest = 0x8D92, // 36242
 
