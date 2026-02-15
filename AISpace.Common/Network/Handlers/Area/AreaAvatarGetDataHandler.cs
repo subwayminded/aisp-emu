@@ -28,22 +28,19 @@ public class AreaAvatarGetDataHandler(ILogger<AreaAvatarGetDataHandler> logger, 
             return;
         _logger.LogInformation("Processing AvatarGetDataRequest for Character: {CharacterName} (ID: {CharacterId})", cha.Name, cha.Id);
         var charaData = new CharaData(cha.ModelId, (uint)cha.Id, cha.Name);
-        charaData.Visual.CharacterID = (uint)cha.Id;
+        charaData.Visual.VisualId = (uint)cha.Id;
         charaData.Visual.BloodType = cha.BloodType;
         charaData.Visual.Month = (byte)cha.Birthdate.Month;
         charaData.Visual.Day = (byte)cha.Birthdate.Day;
         charaData.Visual.Gender = (uint)cha.Gender;
         charaData.Visual.Face = (byte)cha.FaceType;
         charaData.Visual.Hairstyle = cha.Hairstyle;
-        foreach (var item in cha.Equipment)
+        // Fill 30 slots by SlotIndex so client gets correct slot mapping
+        for (byte slot = 0; slot < 30; slot++)
         {
-            _logger.LogInformation("Client: {ClientId} requested AvatarGetData. Adding Equipment {equp}", connection.Id, item.ItemId);
-            charaData.AddEquip((uint)item.ItemId, 0);
+            var eq = cha.Equipment.FirstOrDefault(e => e.SlotIndex == slot);
+            charaData.AddEquip(eq != null ? (uint)eq.ItemId : 10100220, slot);
         }
-        //charaData.AddEquip(10100140, 0);
-        //charaData.AddEquip(10200130, 0);
-        //charaData.AddEquip(10100190, 0);
-        //charaData.AddEquip(10100180, 0);
         var avatarData = new AvatarData(0, charaData);
         var notifyData = new AvatarNotifyData(0, avatarData);
         await connection.SendAsync(ResponseType, notifyData.ToBytes(), ct);
