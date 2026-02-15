@@ -247,6 +247,15 @@ public enum PacketType : ushort
     [PacketMetadata(ServerType.Unknown, PacketDirection.Unknown, "")]
     EmotionGetObtainedListResponse = 0xC3D7, // 50135
 
+    [PacketMetadata(ServerType.Area, PacketDirection.ClientToServer, "")]
+    EmotionCharaRequest = 0xCB64, // 52068
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "")]
+    EmotionCharaResponse = 0x1CC7, // 7367
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "")]
+    NotifyEmotionChara = 0x67B5, // 26549
+
     [PacketMetadata(ServerType.Unknown, PacketDirection.Unknown, "")]
     EquipOrderListRequest = 0xF74C, // 63308
 
