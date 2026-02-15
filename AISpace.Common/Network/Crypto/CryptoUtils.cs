@@ -1,12 +1,11 @@
-﻿using System.Security.Cryptography;
+﻿using System.Numerics;
+using System.Security.Cryptography;
 using System.Text;
-using System.Numerics;
 
 namespace AISpace.Common.Network.Crypto;
 
 public class CryptoUtils
 {
-
     private static readonly BigInteger RsaE = new(65537);
 
     private static BigInteger FromLeUnsigned(ReadOnlySpan<byte> le)
@@ -67,5 +66,4 @@ public class CryptoUtils
         string opt = sb.ToString(0, 20);
         return opt;
     }
-
 }

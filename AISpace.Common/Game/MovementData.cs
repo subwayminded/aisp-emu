@@ -6,9 +6,9 @@ public enum MovementType : byte
     Walking = 1,
     Running = 2,
 }
+
 public class MovementData(float x, float y, float z, sbyte rotation, MovementType animation)
 {
-
     public float X = x;
     public float Y = y;
     public float Z = z;
@@ -36,6 +36,5 @@ public class MovementData(float x, float y, float z, sbyte rotation, MovementTyp
         var movementType = (MovementType)reader.ReadByte();
         var moveData = new MovementData(x, y, z, rotation, movementType);
         return moveData;
-
     }
 }

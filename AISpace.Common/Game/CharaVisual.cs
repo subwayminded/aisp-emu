@@ -7,11 +7,12 @@ public enum BloodType : uint
     A = 0,
     B = 1,
     AB = 2,
-    O = 3
+    O = 3,
 }
+
 public class CharaVisual(BloodType bloodType, byte month, byte day, uint gender, uint visualId, byte face, uint hairStyle)
 {
-    public BloodType BloodType = bloodType;//1=A, 2=B
+    public BloodType BloodType = bloodType; //1=A, 2=B
     public byte Month = month;
     public byte Day = day;
     public uint Gender = gender;
@@ -19,7 +20,6 @@ public class CharaVisual(BloodType bloodType, byte month, byte day, uint gender,
     public byte Face = face;
     public uint Hairstyle = hairStyle;
     public DateTime Birthdate => new(DateTime.Now.Year, Month, Day);
-
 
     public static CharaVisual FromBytes(ReadOnlySpan<byte> buffer)
     {
@@ -37,6 +37,7 @@ public class CharaVisual(BloodType bloodType, byte month, byte day, uint gender,
         var newCV = new CharaVisual((BloodType)bloodType, month, day, gender, characterID, face, hairstyle);
         return newCV;
     }
+
     public byte[] ToBytes()
     {
         var writer = new PacketWriter();
