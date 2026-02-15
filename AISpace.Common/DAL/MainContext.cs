@@ -1,4 +1,4 @@
-﻿using AISpace.Common.DAL.Entities;
+using AISpace.Common.DAL.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace AISpace.Common.DAL;
@@ -34,6 +34,7 @@ public class MainContext(DbContextOptions<MainContext> options) : DbContext(opti
              .HasColumnName("PasswordHash")
              .HasMaxLength(512)
              .IsRequired();
+            e.Property(x => x.NpsPoints).HasDefaultValue(0L);
             e.HasIndex(x => x.Username).IsUnique();
 
             e.HasMany(x => x.Sessions)
