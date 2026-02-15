@@ -13,6 +13,5 @@ public class AvatarData(uint Result, CharaData chara)
         writer.Write((ushort)8);
         writer.Write(new byte[573]);
         return writer.ToBytes(); //928 bytes
-
     }
 }
