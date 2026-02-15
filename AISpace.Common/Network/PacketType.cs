@@ -262,6 +262,12 @@ public enum PacketType : ushort
     [PacketMetadata(ServerType.Unknown, PacketDirection.Unknown, "")]
     EquipOrderListResponse = 0x2DAE, // 11694
 
+    [PacketMetadata(ServerType.Area, PacketDirection.ClientToServer, "")]
+    GetMyAvatarMyprofileDataRequest = 0x3915, // 14613
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "")]
+    GetMyAvatarMyprofileDataResponse = 0xDDEE, // 56814
+
     [PacketMetadata(ServerType.Unknown, PacketDirection.Unknown, "")]
     FriendGetListDataRequest = 0x805F, // 32863
 
@@ -423,6 +429,12 @@ public enum PacketType : ushort
 
     [PacketMetadata(ServerType.Unknown, PacketDirection.Unknown, "")]
     MoneyNpsPointsResponse = 0x3CF5, // 15605
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "recv_money_updated_nicopoint")]
+    MoneyUpdatedNicopoint = 0xE100, // CProtoArea_client::recv_money_updated_nicopoint
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "recv_money_updated_aipoint")]
+    MoneyUpdatedAipoint = 0xE101, // CProtoArea_client::recv_money_updated_aipoint
 
     [PacketMetadata(ServerType.Unknown, PacketDirection.Unknown, "")]
     MyRoomGetFurnitureRequest = 0xE868, // 59496
