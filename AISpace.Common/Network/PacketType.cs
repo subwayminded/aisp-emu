@@ -319,6 +319,12 @@ public enum PacketType : ushort
     [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "recv_item_try_equip_fix_r")]
     ItemTryEquipFixResponse = 0x8D54, // 36180
 
+    [PacketMetadata(ServerType.Area, PacketDirection.ClientToServer, "send_item_try_equip_reset")]
+    ItemTryEquipResetRequest = 0x9703, // 38659
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "recv_item_try_equip_reset_r")]
+    ItemTryEquipResetResponse = 0xA87A, // 43130
+
     [PacketMetadata(ServerType.Area, PacketDirection.ClientToServer, "send_item_try_equip_replace")]
     ItemTryEquipReplaceRequest = 0x0083, // 131
 
