@@ -498,4 +498,22 @@ public enum PacketType : ushort
 
     [PacketMetadata(ServerType.Unknown, PacketDirection.Unknown, "")]
     UpdateOptionResponse = 0xB314, // 45844
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ClientToServer, "send_trashbox_open")]
+    TrashboxOpenRequest = 0xF41F, // 62495
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "recv_trashbox_open_r")]
+    TrashboxOpenResponse = 0x770E, // 30478
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ClientToServer, "send_trashbox_close")]
+    TrashboxCloseRequest = 0x6A3A, // 27194
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "recv_trashbox_close_r")]
+    TrashboxCloseResponse = 0x9A7E, // 39614
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ClientToServer, "send_trashbox_discard_item")]
+    TrashboxDiscardItemRequest = 0xB18E, // 45454
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "recv_trashbox_discard_item_r")]
+    TrashboxDiscardItemResponse = 0xBBEB, // 48107
 }
