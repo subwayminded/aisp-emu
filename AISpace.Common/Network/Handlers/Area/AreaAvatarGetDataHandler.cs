@@ -27,7 +27,7 @@ public class AreaAvatarGetDataHandler(ILogger<AreaAvatarGetDataHandler> logger, 
         if (cha == null)
             return;
         _logger.LogInformation("Processing AvatarGetDataRequest for Character: {CharacterName} (ID: {CharacterId})", cha.Name, cha.Id);
-        var charaData = new CharaData(cha.ModelId, (uint)cha.Id, cha.Name);
+        var charaData = new CharaData((uint)cha.Id, cha.ModelId, cha.Name);
         charaData.Visual.VisualId = (uint)cha.Id;
         charaData.Visual.BloodType = cha.BloodType;
         charaData.Visual.Month = (byte)cha.Birthdate.Month;
