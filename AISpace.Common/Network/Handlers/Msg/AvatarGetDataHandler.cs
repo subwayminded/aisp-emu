@@ -30,20 +30,19 @@ public class AvatarGetDataHandler(ILogger<AvatarGetDataHandler> logger, ICharact
             Character cha = connection.User!.Characters.First();
 
             var dataResponse = new AvatarDataResponse(0, cha.Name, cha.ModelId, 0, 0);
-            dataResponse.Visual.CharacterID = (uint)cha.Id;
+            dataResponse.Visual.VisualId = (uint)cha.Id;
             dataResponse.Visual.BloodType = cha.BloodType;
             dataResponse.Visual.Month = (byte)cha.Birthdate.Month;
             dataResponse.Visual.Day = (byte)cha.Birthdate.Day;
             dataResponse.Visual.Gender = (uint)cha.Gender;
             dataResponse.Visual.Face = (byte)cha.FaceType;
             dataResponse.Visual.Hairstyle = cha.Hairstyle;
-            foreach (var item in cha.Equipment)
+            // Fill 30 slots by SlotIndex so client gets correct slot mapping
+            for (byte slot = 0; slot < 30; slot++)
             {
-                dataResponse.AddEquip((uint)item.ItemId, 0);
+                var eq = cha.Equipment.FirstOrDefault(e => e.SlotIndex == slot);
+                dataResponse.AddEquip(eq != null ? (uint)eq.ItemId : 0, slot);
             }
-            //dataResponse.AddEquip(10100140, 0);
-            //dataResponse.AddEquip(10200130, 0);
-            //dataResponse.AddEquip(10100190, 0);
             await connection.SendAsync(ResponseType, dataResponse.ToBytes(), ct);
         }
         var avatarGetDataResp = new AvatarGetDataResponse(0);

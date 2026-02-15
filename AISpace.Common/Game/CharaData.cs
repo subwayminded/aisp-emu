@@ -1,4 +1,4 @@
-﻿namespace AISpace.Common.Game;
+namespace AISpace.Common.Game;
 
 public class CharaData(uint chara_id, uint character_id, string name)
 {
@@ -17,20 +17,28 @@ public class CharaData(uint chara_id, uint character_id, string name)
     }
     public byte[] ToBytes()
     {
+        uint y = 0;
         while (Equips.Count < 30)
-            AddEquip(0, 0);
+            AddEquip(0, y++);
+
         var writer = new Network.PacketWriter();
         writer.Write(chara_id);
         writer.Write(character_id);
-        writer.WriteFixedString(name, 37, "ASCII");//37
+        writer.WriteFixedString(name, 37, "SHIFT_JIS"); //37
         writer.Write(Visual.ToBytes());
+        writer.Write(0f); //Quaternion X
+        writer.Write(0f); //Quaternion Y
+        writer.Write(0f); //Quaternion Z
+        writer.Write(0f); //Quaternion W
+        //writer.Write(moveData.ToBytes());
         writer.Write(moveData.ToBytes());
-        writer.Write(moveData.ToBytes());
-        writer.Write(new byte[6]);
+        writer.Write(new byte[4]);
         writer.Write(new byte[8]);
-        writer.Write((ushort)Equips.Count);
-        foreach (var item in Equips)
-            writer.Write(item.ToBytes());
+        writer.Write((ushort)30);
+        for (int i = 0; i < 30; i++)
+        {
+            writer.Write(Equips[i].ToBytes());
+        }
         writer.Write(new byte[1]);
         return writer.ToBytes();
     }
