@@ -1,4 +1,6 @@
 using AISpace.Common.DAL.Repositories;
+using AISpace.Common.Game;
+using AISpace.Common.Network;
 using AISpace.Common.Network.Packets.Area;
 using AISpace.Common.Network.Packets.Common;
 using Microsoft.Extensions.Logging;
@@ -36,27 +38,28 @@ public class AreasvEnterHandler(IUserSessionRepository sessionRepo, ILogger<Area
         var response = new AreasvEnterResponse(0, 0);
         await connection.SendAsync(ResponseType, response.ToBytes(), ct);
 
-        _ = Task.Run(async () =>
-        {
-            try
+        _ = Task.Run(
+            async () =>
             {
-                await Task.Delay(TimeSpan.FromSeconds(10), ct);
-                //_logger.Info("Attempting to add Avatar");
-                //var charaData = new CharaData(24, 24, "randomuser");
-                //charaData.AddEquip(10100140, 0);
-                //charaData.AddEquip(10200130, 0);
-                //charaData.AddEquip(10100190, 0);
-                //var avatarData = new AvatarData(1, charaData);
-                //_ = new AvatarNotifyData(0, avatarData);
-                //await Task.Delay(TimeSpan.FromSeconds(1), ct);
+                try
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(10), ct);
+                    //_logger.Info("Attempting to add Avatar");
+                    //var charaData = new CharaData(24, 24, "randomuser");
+                    //charaData.AddEquip(10100140, 0);
+                    //charaData.AddEquip(10200130, 0);
+                    //charaData.AddEquip(10100190, 0);
+                    //var avatarData = new AvatarData(1, charaData);
+                    //_ = new AvatarNotifyData(0, avatarData);
+                    //await Task.Delay(TimeSpan.FromSeconds(1), ct);
 
-                //var moveData = new MovementData(-227.392f, -0.043f, -1418.097f, -119, MovementType.Stopped);
-                //var moveNotify = new AvatarNotifyMove(0, (uint)connection.clientUser.Characters.First().Id, moveData);
-                //await connection.SendAsync(PacketType.AvatarNotifyMove, moveNotify.ToBytes(), ct);
-            }
-            catch (OperationCanceledException)
-            {
-            }
-        }, ct);
+                    //var moveData = new MovementData(-227.392f, -0.043f, -1418.097f, -119, MovementType.Stopped);
+                    //var moveNotify = new AvatarNotifyMove(0, (uint)connection.clientUser.Characters.First().Id, moveData);
+                    //await connection.SendAsync(PacketType.AvatarNotifyMove, moveNotify.ToBytes(), ct);
+                }
+                catch (OperationCanceledException) { }
+            },
+            ct
+        );
     }
 }
