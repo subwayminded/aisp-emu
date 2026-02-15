@@ -20,14 +20,7 @@ public class AvatarCreateHandler(ILogger<AvatarCreateHandler> logger, ICharacter
         if (!connection.IsAuthenticated || connection.User == null)
             return null;
 
-        Character newChar = await charRepo.CreateAsync(request.AvatarName,
-            connection.User.Id,
-            request.modelId,
-            request.visual.BloodType,
-            request.visual.Birthdate,
-            (int)request.visual.Gender,
-            request.visual.Face,
-            request.visual.Hairstyle, ct);
+        Character newChar = await charRepo.CreateAsync(request.AvatarName, connection.User.Id, request.modelId, request.visual.BloodType, request.visual.Birthdate, (int)request.visual.Gender, request.visual.Face, request.visual.Hairstyle, ct);
 
         if ((int)request.visual.Gender == 1)
         {

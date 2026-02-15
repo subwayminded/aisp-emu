@@ -23,10 +23,8 @@ public class AvatarGetDataHandler(ILogger<AvatarGetDataHandler> logger, ICharact
 
         _logger.LogWarning("Client: {ClientId} requested AvatarGetData ", connection.Id);
 
-
         if (connection.User!.Characters.Count != 0)
         {
-
             Character cha = connection.User!.Characters.First();
 
             var dataResponse = new AvatarDataResponse(0, cha.Name, cha.ModelId, 0, 0);

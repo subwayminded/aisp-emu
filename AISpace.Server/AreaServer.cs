@@ -16,12 +16,7 @@ public class AreaServer : BackgroundService
 
     private readonly TimeSpan _tickRate = TimeSpan.FromMilliseconds(1000.0 / 60.0);
 
-    public AreaServer(ILogger<AreaServer> logger,
-        MainContext db,
-        IUserRepository userRepo,
-        AreaChannel channel,
-        IWorldRepository worldRepo,
-        PacketDispatcher dispatcher)
+    public AreaServer(ILogger<AreaServer> logger, MainContext db, IUserRepository userRepo, AreaChannel channel, IWorldRepository worldRepo, PacketDispatcher dispatcher)
     {
         _logger = logger;
         _db = db;
@@ -77,6 +72,7 @@ public class AreaServer : BackgroundService
             UpdateWorld();
         }
     }
+
     private void UpdateWorld()
     {
         // game state update logic goes here

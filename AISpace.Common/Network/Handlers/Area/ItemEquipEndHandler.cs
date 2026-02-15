@@ -17,10 +17,8 @@ public class ItemEquipEndHandler(ILogger<ItemEquipEndHandler> logger) : IPacketH
         var request = ItemEquipEndRequest.FromBytes(payload.Span);
         _logger.LogInformation("Client {Id} requested ItemEquipEnd for ObjId: {ObjId}", connection.Id, request.ObjId);
 
-
-        var response = new ItemEquipEndResponse(1); // 1 = Success
+        var response = new ItemEquipEndResponse(1);
         await connection.SendAsync(ResponseType, response.ToBytes(), ct);
-
 
         var equipEnded = new ItemEquipEnded(request.ObjId);
         await connection.SendAsync(PacketType.ItemEquipEnded, equipEnded.ToBytes(), ct);
