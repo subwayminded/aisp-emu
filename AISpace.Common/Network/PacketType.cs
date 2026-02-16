@@ -142,6 +142,9 @@ public enum PacketType : ushort
     [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "recv_notify_move_chara")]
     AvatarNotifyMove = 0xAADB,
 
+    [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "recv_notify_show_chara")]
+    NotifyShowChara = 0xD16E, // 53678
+
     [PacketMetadata(ServerType.Unknown, PacketDirection.Unknown, "")]
     AvatarSelectRequest = 0x113D, // 4413
 
