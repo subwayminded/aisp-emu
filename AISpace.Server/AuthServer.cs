@@ -10,68 +10,52 @@ public class AuthServer : BackgroundService
 {
     private readonly ILogger<AuthServer> _logger;
     private readonly MainContext _db;
-    private readonly PacketDispatcher _dispatcher;
     private readonly IUserRepository _userRepo;
     private readonly IWorldRepository _worldRepo;
+    private readonly ICharacterRepository _charRepo;
     private readonly ChannelReader<Packet> _channel;
-    public readonly MessageDomain ActiveDomain = MessageDomain.Auth;
+    private readonly PacketDispatcher _dispatcher;
 
-    private readonly TimeSpan _tickRate = TimeSpan.FromMilliseconds(1000.0 / 60.0);
-
-    public AuthServer(ILogger<AuthServer> logger,
-        MainContext db,
-        IUserRepository userRepo,
-        AuthChannel channel,
-        IWorldRepository worldRepo,
-        PacketDispatcher dispatcher)
+    public AuthServer(ILogger<AuthServer> logger, MainContext db, IUserRepository userRepo, 
+                      AuthChannel channel, IWorldRepository worldRepo, 
+                      ICharacterRepository charRepo, PacketDispatcher dispatcher)
     {
         _logger = logger;
         _db = db;
         _channel = channel.Channel;
-        _dispatcher = dispatcher;
-        _userRepo = userRepo;
         _worldRepo = worldRepo;
+        _userRepo = userRepo;
+        _charRepo = charRepo;
+        _dispatcher = dispatcher;
 
-        //Setup DB. Since dev just nuke and recreate
-        //Nuke DB
-        //_db.Database.EnsureDeleted();
-        //Create DB
         _db.Database.EnsureCreated();
-
-        if(db.Worlds.Any() == false)
-            _worldRepo.AddAsync("default", "Localhost World", "127.0.0.1", 50052);
-        if(db.Users.Any() == false)
-            _userRepo.AddAsync("testuser", "password");
+        InitDatabase().Wait();
     }
 
-    protected override async Task ExecuteAsync(CancellationToken ct = default)
+    private async Task InitDatabase()
     {
-        _logger.LogInformation("Starting {domain} server", ActiveDomain);
-        var packetLoop = RunPacketLoop(ct);
-        var gameLoop = RunGameLoop(ct);
-
-        await Task.WhenAll(packetLoop, gameLoop);
-    }
-
-    private async Task RunPacketLoop(CancellationToken ct = default)
-    {
-        await foreach (var packet in _channel.ReadAllAsync(ct))
-        {
-            await _dispatcher.DispatchAsync(ActiveDomain, packet.Type, packet.Data, packet.Client, ct);
+        // Настройка мира
+        if (!await _db.Worlds.AnyAsync()) {
+            await _worldRepo.AddAsync("Local", "Multiplayer Server", "192.168.31.157", 50052);
         }
-    }
 
-    private async Task RunGameLoop(CancellationToken ct = default)
-    {
-        var sw = new PeriodicTimer(_tickRate);
-        while (await sw.WaitForNextTickAsync(ct))
-        {
-            // Advance game simulation
-            UpdateWorld();
+        // Создаем 10 тестовых аккаунтов, если их еще нет
+        for (int i = 1; i <= 10; i++) {
+            string username = $"testuser{i}";
+            
+            // Проверка, существует ли уже такой пользователь, чтобы избежать ошибок БД
+            if (!await _db.Users.AnyAsync(u => u.Username == username)) {
+                await _userRepo.AddAsync(username, "password");
+                _logger.LogInformation("Account '{username}' registered.", username);
+            }
         }
-    }
-    private void UpdateWorld()
+    } // Конец метода InitDatabase
+
+    protected override async Task ExecuteAsync(CancellationToken ct)
     {
-        // game state update logic goes here
+        _logger.LogInformation("Starting Auth server");
+        await foreach (var packet in _channel.ReadAllAsync(ct)) {
+            await _dispatcher.DispatchAsync(MessageDomain.Auth, packet.Type, packet.Data, packet.Client, ct);
+        }
     }
 }
