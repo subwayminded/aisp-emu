@@ -1,12 +1,12 @@
 using AISpace.Common.Network.Packets;
 using AISpace.Common.Network.Packets.Msg;
-using NLog;
+using Microsoft.Extensions.Logging;
 
 namespace AISpace.Common.Network.Handlers.Msg;
 
-public class PostTalkHandler : IPacketHandler
+public class PostTalkHandler(ILogger<PostTalkHandler> logger) : IPacketHandler
 {
-    private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+    private readonly ILogger<PostTalkHandler> _logger = logger;
 
     public PacketType RequestType => PacketType.PostTalkRequest;
 
@@ -17,7 +17,7 @@ public class PostTalkHandler : IPacketHandler
     public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
     {
         var chatMessage = PostTalkRequest.FromBytes(payload.Span);
-        _logger.Info($"User says {chatMessage.Message} | MID{chatMessage.MessageID} | DID{chatMessage.DistID} | BID{chatMessage.BalloonID}");
+        _logger.LogInformation($"User says {chatMessage.Message} | MID{chatMessage.MessageID} | DID{chatMessage.DistID} | BID{chatMessage.BalloonID}");
 
         var response = new PostTalkResponse(chatMessage.MessageID, result: 0);
         await connection.SendAsync(ResponseType, response.ToBytes(), ct);
