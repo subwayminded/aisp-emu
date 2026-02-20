@@ -10,8 +10,7 @@ public class AreaTrashboxCloseHandler : IPacketHandler
 
     public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
     {
-        // 0 = Success. Это должно сказать клиенту "Ок, закрой окно".
-        var response = new TrashboxCloseResponse(0); 
+        var response = new TrashboxCloseResponse(1);
         await connection.SendAsync(ResponseType, response.ToBytes(), ct);
     }
 }

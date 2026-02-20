@@ -13,7 +13,7 @@ public class ChannelListGetHandler(ILogger<ChannelListGetHandler> logger) : IPac
     public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
     {
         // ХАРДКОД
-        string myIp = "192.168.31.157"; 
+        string myIp = "192.168.31.158"; 
         ushort areaPort = 50054; // Порт Area сервера
 
         logger.LogInformation($"[STEP 2] Msg -> Area (List). Sending IP: {myIp}:{areaPort}");

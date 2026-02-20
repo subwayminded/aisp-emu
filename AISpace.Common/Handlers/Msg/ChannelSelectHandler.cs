@@ -12,7 +12,7 @@ public class ChannelSelectHandler(ILogger<ChannelSelectHandler> logger) : IPacke
 
     public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
     {
-        string myIp = "192.168.31.157"; 
+        string myIp = "192.168.31.158"; 
         
         // 10990200 - Остров обучения
         // 10010100 - Главная площадь Акихабары

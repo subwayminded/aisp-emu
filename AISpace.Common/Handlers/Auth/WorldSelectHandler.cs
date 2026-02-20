@@ -24,7 +24,7 @@ public class WorldSelectHandler(IWorldRepository worldRepo, IUserSessionReposito
         
         await sessionRepo.CreateAsync(clientUser.Id, otp, TimeSpan.FromHours(1), ct);
 
-        string myPublicIp = "192.168.31.157"; 
+        string myPublicIp = "192.168.31.158"; 
         ushort msgPort = 50052;
 
         logger.LogInformation($"[HARDCODE] Sending client {clientUser.Username} to {myPublicIp}:{msgPort}");

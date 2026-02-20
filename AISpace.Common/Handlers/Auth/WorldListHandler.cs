@@ -16,7 +16,7 @@ public class WorldListHandler(IWorldRepository repo, ILogger<WorldListHandler> l
         var dbWorlds = await repo.GetAllAsync();
         var patchedWorlds = new List<World>();
         
-        string hardcodedIp = "192.168.31.157";
+        string hardcodedIp = "192.168.31.158";
 
         foreach (var w in dbWorlds)
         {

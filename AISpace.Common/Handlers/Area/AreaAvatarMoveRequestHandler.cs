@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AISpace.Common.Network.Handlers.Area;
 
-public class AreaAvatarMoveRequestHandler(ILogger<AreaAvatarMoveRequestHandler> _logger, SharedState state) : IPacketHandler
+public class AreaAvatarMoveRequestHandler(ILogger<AreaAvatarMoveRequestHandler> logger, SharedState state) : IPacketHandler
 {
     public PacketType RequestType => PacketType.AvatarMoveRequest;
     public PacketType ResponseType => PacketType.AvatarNotifyMove;
@@ -12,24 +12,23 @@ public class AreaAvatarMoveRequestHandler(ILogger<AreaAvatarMoveRequestHandler> 
 
     public async Task HandleAsync(ReadOnlyMemory<byte> payload, ClientConnection connection, CancellationToken ct = default)
     {
-        var moveReq = AvatarMove.FromBytes(payload.Span);
-        if (moveReq.Moves.Length == 0) return;
-        var lastPoint = moveReq.Moves[^1];
+        var avatarMove = AvatarMove.FromBytes(payload.Span);
+        if (avatarMove.Moves.Length == 0) return;
 
-        // ВЫЧИСЛЯЕМ БЕГ: Если дистанция большая - ставим Running
-        float dist = (float)Math.Sqrt(Math.Pow(lastPoint.X - connection.X, 2) + Math.Pow(lastPoint.Z - connection.Z, 2));
-        if (dist > 0.0f) lastPoint.Animation = MovementType.Running;
-        else if (dist > 0.0f) lastPoint.Animation = MovementType.Walking;
+        var movement = avatarMove.Moves[^1]; // Берем последнюю точку
 
-        connection.X = lastPoint.X; connection.Y = lastPoint.Y; connection.Z = lastPoint.Z;
-        connection.Rotation = lastPoint.Rotation;
+        // Сохраняем позицию, чтобы новые игроки видели его тут
+        connection.X = movement.X;
+        connection.Y = movement.Y;
+        connection.Z = movement.Z;
+        connection.Rotation = movement.Rotation;
 
-        // Рассылка через 0xAADB
-        var notify = new AvatarNotifyMove(1, connection.CharacterId, lastPoint).ToBytes();
+        var notify = new AvatarNotifyMove(1, connection.CharacterId, movement).ToBytes();
+
         foreach (var other in state.AreaClients.Values)
         {
-            if (other.Id == connection.Id) continue;
-            await other.SendAsync(PacketType.AvatarNotifyMove, notify, ct);
+            if (other.Id == connection.Id) continue; 
+            _ = other.SendAsync(ResponseType, notify, ct);
         }
     }
 }
