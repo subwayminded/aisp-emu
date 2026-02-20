@@ -142,9 +142,6 @@ public enum PacketType : ushort
     [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "recv_notify_move_chara")]
     AvatarNotifyMove = 0xAADB,
 
-    [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "recv_notify_show_chara")]
-    NotifyShowChara = 0xD16E, // 53678
-
     [PacketMetadata(ServerType.Unknown, PacketDirection.Unknown, "")]
     AvatarSelectRequest = 0x113D, // 4413
 
@@ -540,4 +537,13 @@ public enum PacketType : ushort
 
     [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "recv_trashbox_discard_item_r")]
     TrashboxDiscardItemResponse = 0xBBEB, // 48107
+	
+	[PacketMetadata(ServerType.Area, PacketDirection.ClientToServer, "send_edit_myprofile")]
+    MyProfileAvatarEditRequest = 0xA063,
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ServerToClient, "recv_edit_myprofile_r")]
+    MyProfileAvatarEditResponse = 0x873B,
+
+    [PacketMetadata(ServerType.Area, PacketDirection.ClientToServer, "send_close_myprofile")]
+    MyProfileCloseRequest = 0xEF6F,
 }
