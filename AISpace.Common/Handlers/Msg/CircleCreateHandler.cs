@@ -19,11 +19,15 @@ public class CircleCreateHandler(MainContext db, ILogger<CircleCreateHandler> lo
     {
         if (session.User == null)
             return new CircleCreateResponse(1, null);
+            
         var character = await db.Characters.FirstOrDefaultAsync(c => c.Id == session.CharacterId, ct);
         if (character == null)
             return new CircleCreateResponse(1, null);
+            
         if (character.CircleId != null)
             return new CircleCreateResponse(2, null);
+
+        logger.LogInformation("Creating circle '{CircleName}' for Character {CharId}", request.Name, character.Id);
 
         var circle = new Circle
         {
@@ -32,11 +36,11 @@ public class CircleCreateHandler(MainContext db, ILogger<CircleCreateHandler> lo
             CreatedAt = DateTime.UtcNow,
         };
 
-        //db.Circles.Add(circle);
-        //await db.SaveChangesAsync(ct);
+        db.Circles.Add(circle);
+        await db.SaveChangesAsync(ct);
 
-        //character.CircleId = circle.Id;
-        //await db.SaveChangesAsync(ct);
+        character.CircleId = circle.Id;
+        await db.SaveChangesAsync(ct);
 
         var membersList = new List<CircleMemberData>();
         var notifyPacket = new CircleNotifyMember((uint)circle.Id, membersList);
