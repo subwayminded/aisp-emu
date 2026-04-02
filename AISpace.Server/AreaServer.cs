@@ -1,38 +1,72 @@
+using AISpace.Common;
 using AISpace.Common.DAL;
+using AISpace.Common.DAL.Entities;
+using AISpace.Common.DAL.Repositories;
 using AISpace.Common.Game;
 using AISpace.Network;
 using AISpace.Network.Packets.Area;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
-namespace AISpace.Common.Handlers.Area;
+namespace AISpace.Server;
 
-public class AreaItemGetListHandler(MainContext db) : IPacketHandler
+public class AreaServer(ILogger<AreaServer> logger, MainContext db, IUserRepository userRepo, int port, ILoggerFactory loggerFactory, IWorldRepository worldRepo, PacketDispatcher dispatcher, SharedState state) : DomainServerBase<AreaServer>(logger, db, userRepo, port, "Area", loggerFactory, worldRepo, dispatcher, state)
 {
-    public PacketType RequestType => PacketType.ItemGetListRequest;
-    public PacketType ResponseType => PacketType.ItemGetListResponse;
-    public MessageDomain Domain => MessageDomain.Area;
+    protected override MessageDomain ActiveDomain => MessageDomain.Area;
+    private static readonly long _serverStartTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+    private DateTime _nextTimeUpdate = DateTime.MinValue;
 
-    public async Task HandleAsync(ReadOnlyMemory<byte> payload, IPlayerSession session, CancellationToken ct = default)
+    protected override void Initialize()
     {
-        var response = new ItemGetListResponse(0);
-        await session.SendAsync(ResponseType, response.ToBytes(), ct);
+        if (Db.Items.Any())
+            return;
 
-        var chara = await db.Characters
-            .Include(c => c.Inventory)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.Id == session.CharacterId, ct);
+        List<Item> items = [];
+        Logger.LogInformation("Loading items from CSV");
+        
+        string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "testitems.csv");
+        if (!File.Exists(path)) 
+            path = "testitems.csv";
 
-
-        if (chara != null && chara.Inventory != null)
+        if (File.Exists(path))
         {
-            uint placeIndex = 0;
-            foreach (var invItem in chara.Inventory)
+            foreach (var row in File.ReadLines(path))
             {
-                var notify = new ItemUpdateListNotify(placeIndex, (uint)invItem.ItemId, (uint)invItem.ItemId);
-                await session.SendAsync(PacketType.ItemUpdateListNotify, notify.ToBytes(), ct);
-                
-                placeIndex++;
+                var parts = row.Split(',');
+                if (parts.Length >= 3 && int.TryParse(parts[0], out int id))
+                {
+                    items.Add(new Item { Id = id, Name = parts[2] });
+                }
             }
+
+            items = [.. items.DistinctBy(i => i.Id)];
+
+            Db.ChangeTracker.AutoDetectChangesEnabled = false;
+            Db.Items.AddRange(items);
+            Db.SaveChanges();
+            Db.ChangeTracker.AutoDetectChangesEnabled = true;
+            Logger.LogInformation("Loaded {count} items", items.Count);
+        }
+    }
+
+    protected override void OnTick(CancellationToken ct) => UpdateWorld();
+
+    private void UpdateWorld()
+    {
+        if (DateTime.UtcNow > _nextTimeUpdate)
+        {
+            var t = TimeZoneService.GetServerTime();
+
+            var timePacket = new TimeZoneGetResponse(0, (uint)t.Phase, t.Current, t.Max, 0);
+            byte[] data = timePacket.ToBytes();
+
+            foreach (var client in State.AreaClients.Values)
+            {
+                if (client.IsAuthenticated)
+                    _ = client.SendAsync(PacketType.TimeZoneGetResponse, data);
+            }
+
+            _nextTimeUpdate = DateTime.UtcNow.AddSeconds(1);
         }
     }
 }
