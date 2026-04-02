@@ -14,7 +14,7 @@ public class AreaMapEnterHandler(ILogger<AreaMapEnterHandler> logger) : IPacketH
     public async Task HandleAsync(ReadOnlyMemory<byte> payload, IPlayerSession session, CancellationToken ct = default)
     {
         var request = AreaMapEnterRequest.FromBytes(payload.Span);
-        logger.LogInformation("MapEnterRequest from user {UserId}: requested MapID {MapId}", session.User.Id, request.MapID);
+        logger.LogInformation("MapEnterRequest from user {UserId}: requested MapID {MapId}", session.User?.Id ?? 0, request.MapID);
         var response = new AreaMapEnterResponse(0);
         await session.SendAsync(ResponseType, response.ToBytes(), ct);
     }
