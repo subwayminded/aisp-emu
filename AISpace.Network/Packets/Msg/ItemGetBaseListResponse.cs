@@ -1,4 +1,4 @@
-﻿using AISpace.Network.Data;
+using AISpace.Network.Data;
 
 namespace AISpace.Network.Packets.Msg;
 
@@ -7,14 +7,17 @@ public class ItemGetBaseListResponse : IPacket<ItemGetBaseListResponse>
     uint result = 0;
     readonly List<ItemData> Items = [];
 
-    // White list of IDs for starter clothes
     private readonly HashSet<uint> _starterIds = [10100220, 10200100, 10400030, 10500070, 10100060, 10200090, 10400000, 10500010];
 
     public ItemGetBaseListResponse()
     {
-        if (File.Exists("testitems.csv"))
+        string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "testitems.csv");
+        if (!File.Exists(path)) 
+            path = "testitems.csv";
+
+        if (File.Exists(path))
         {
-            foreach (var line in File.ReadLines("testitems.csv"))
+            foreach (var line in File.ReadLines(path))
             {
                 if (string.IsNullOrWhiteSpace(line))
                     continue;
