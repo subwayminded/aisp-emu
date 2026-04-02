@@ -1,3 +1,5 @@
+using AISpace.Common.DAL;
+using AISpace.Common.DAL.Entities;
 using AISpace.Common.DAL.Repositories;
 using AISpace.Common.Game;
 using AISpace.Common.Handlers.Area;
@@ -5,12 +7,13 @@ using AISpace.Network;
 using AISpace.Network.Data;
 using AISpace.Network.Packets.Area;
 using AISpace.Network.Packets.Msg;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Character = AISpace.Common.DAL.Entities.Character;
 
 namespace AISpace.Common.Handlers.Msg;
 
-public class CmdExecHandler(SharedState state, IMapRepository mapRepo, ILogger<CmdExecHandler> logger) : IPacketHandler
+public class CmdExecHandler(SharedState state, IMapRepository mapRepo, ILogger<CmdExecHandler> logger, IServiceScopeFactory scopeFactory) : IPacketHandler
 {
     private const float SpawnSpread = 50.0f;
 
@@ -27,24 +30,44 @@ public class CmdExecHandler(SharedState state, IMapRepository mapRepo, ILogger<C
 
         string cmd = request.Command.ToLower();
 
+        uint charId = session.CharacterId;
+        if (charId == 0 && session.User?.Characters.Count > 0)
+        {
+            charId = (uint)session.User.Characters.First().Id;
+        }
+
         if (cmd == "pos" || cmd == "coords")
         {
-            var areaClient = state.AreaClients.Values.FirstOrDefault(c => c.CharacterId == session.CharacterId);
+            var areaClient = state.AreaClients.Values.FirstOrDefault(c => c.CharacterId == charId);
             if (areaClient != null)
             {
-                logger.LogCritical("\n" + "==========================================\n" + $"  LOCATION DATA for Char: {areaClient.CharacterId}\n" + $"  X: {areaClient.X}f\n" + $"  Y: {areaClient.Y}f\n" + $"  Z: {areaClient.Z}f\n" + $"  Rotation: {areaClient.Rotation}\n" + "==========================================");
+                logger.LogCritical("\n" +
+                    "==========================================\n" +
+                    $"  LOCATION DATA for Char: {areaClient.CharacterId}\n" +
+                    $"  X: {areaClient.X}f\n" +
+                    $"  Y: {areaClient.Y}f\n" +
+                    $"  Z: {areaClient.Z}f\n" +
+                    $"  Rotation: {areaClient.Rotation}\n" +
+                    "==========================================");
             }
             return;
         }
 
         if (cmd == "escape" || cmd == "reset")
         {
-            var areaClient = state.AreaClients.Values.FirstOrDefault(c => c.CharacterId == session.CharacterId);
+            var areaClient = state.AreaClients.Values.FirstOrDefault(c => c.CharacterId == charId);
 
-            if (areaClient != null && areaClient.User != null && areaClient.User.Characters.Count > 0)
+            if (areaClient != null)
             {
-                var chara = areaClient.User.Characters.First();
-                uint mapId = chara.CurrentMapId;
+                uint mapId = 0;
+                Character? dbChara = null;
+
+                using (var scope = scopeFactory.CreateScope())
+                {
+                    var db = scope.ServiceProvider.GetRequiredService<MainContext>();
+                    dbChara = await db.Characters.Include(c => c.Equipment).AsNoTracking().FirstOrDefaultAsync(c => c.Id == (int)charId, ct);
+                    if (dbChara != null) mapId = dbChara.CurrentMapId;
+                }
 
                 var map = await mapRepo.GetByMapIdAsync(mapId, ct);
 
@@ -62,16 +85,19 @@ public class CmdExecHandler(SharedState state, IMapRepository mapRepo, ILogger<C
                 var notifyMove = new AvatarNotifyMove(1, areaClient.CharacterId, newPos).ToBytes();
                 await areaClient.SendAsync(PacketType.AvatarNotifyMove, notifyMove, ct);
 
-                var disappearPacket = new NotifyDisappearChara(areaClient.CharacterId).ToBytes();
-                var appearPacket = CreateTeleportNotify(chara, areaClient.CharacterId, newPos);
-
-                foreach (var other in state.AreaClients.Values)
+                if (dbChara != null)
                 {
-                    if (other.ConnectionId == areaClient.ConnectionId)
-                        continue;
+                    var disappearPacket = new NotifyDisappearChara(areaClient.CharacterId).ToBytes();
+                    var appearPacket = CreateTeleportNotify(dbChara, areaClient.CharacterId, newPos);
 
-                    await other.SendAsync(PacketType.NotifyDisappearChara, disappearPacket, ct);
-                    await other.SendAsync(PacketType.AvatarNotifyData, appearPacket, ct);
+                    foreach (var other in state.AreaClients.Values)
+                    {
+                        if (other.ConnectionId == areaClient.ConnectionId)
+                            continue;
+
+                        await other.SendAsync(PacketType.NotifyDisappearChara, disappearPacket, ct);
+                        await other.SendAsync(PacketType.AvatarNotifyData, appearPacket, ct);
+                    }
                 }
             }
         }
