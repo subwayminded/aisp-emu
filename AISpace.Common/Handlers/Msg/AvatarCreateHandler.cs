@@ -28,15 +28,19 @@ public class AvatarCreateHandler(ILogger<AvatarCreateHandler> logger, ICharacter
         {
             await charRepo.EquipAsync(newChar.Id, 0, 10100220, ct);
             await charRepo.EquipAsync(newChar.Id, 1, 10200100, ct);
-            await charRepo.EquipAsync(newChar.Id, 2, 10400030, ct);
-            await charRepo.EquipAsync(newChar.Id, 3, 10500070, ct);
+            await charRepo.EquipAsync(newChar.Id, 4, 10400030, ct); 
+            await charRepo.EquipAsync(newChar.Id, 5, 10500070, ct); 
+            await charRepo.AddInventoryAsync(newChar.Id, 10100060, 1, ct);
+            await charRepo.AddInventoryAsync(newChar.Id, 10200090, 1, ct);
         }
         else
         {
             await charRepo.EquipAsync(newChar.Id, 0, 10100060, ct);
             await charRepo.EquipAsync(newChar.Id, 1, 10200090, ct);
-            await charRepo.EquipAsync(newChar.Id, 2, 10400000, ct);
-            await charRepo.EquipAsync(newChar.Id, 3, 10500010, ct);
+            await charRepo.EquipAsync(newChar.Id, 4, 10400000, ct); 
+            await charRepo.EquipAsync(newChar.Id, 5, 10500010, ct);
+            await charRepo.AddInventoryAsync(newChar.Id, 10100220, 1, ct);
+            await charRepo.AddInventoryAsync(newChar.Id, 10200100, 1, ct);
         }
 
         return new AvatarCreateResponse(0);
