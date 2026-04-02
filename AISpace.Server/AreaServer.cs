@@ -1,54 +1,38 @@
-using AISpace.Common;
-using AISpace.Common.DAL.Entities;
+using AISpace.Common.DAL;
 using AISpace.Common.Game;
 using AISpace.Network;
 using AISpace.Network.Packets.Area;
+using Microsoft.EntityFrameworkCore;
 
-namespace AISpace.Server;
+namespace AISpace.Common.Handlers.Area;
 
-public class AreaServer(ILogger<AreaServer> logger, MainContext db, IUserRepository userRepo, int port, ILoggerFactory loggerFactory, IWorldRepository worldRepo, PacketDispatcher dispatcher, SharedState state) : DomainServerBase<AreaServer>(logger, db, userRepo, port, "Area", loggerFactory, worldRepo, dispatcher, state)
+public class AreaItemGetListHandler(MainContext db) : IPacketHandler
 {
-    protected override MessageDomain ActiveDomain => MessageDomain.Area;
-    private static readonly long _serverStartTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-    private DateTime _nextTimeUpdate = DateTime.MinValue;
+    public PacketType RequestType => PacketType.ItemGetListRequest;
+    public PacketType ResponseType => PacketType.ItemGetListResponse;
+    public MessageDomain Domain => MessageDomain.Area;
 
-    protected override void Initialize()
+    public async Task HandleAsync(ReadOnlyMemory<byte> payload, IPlayerSession session, CancellationToken ct = default)
     {
-        if (Db.Items.Any())
-            return;
+        var response = new ItemGetListResponse(0);
+        await session.SendAsync(ResponseType, response.ToBytes(), ct);
 
-        List<Item> items = [];
-        Logger.LogInformation("Loading items from CSV");
-        foreach (var row in File.ReadLines("testitems.csv"))
-            items.Add(new Item { Id = int.Parse(row.Split(',')[0]), Name = row.Split(',')[2] });
+        var chara = await db.Characters
+            .Include(c => c.Inventory)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Id == session.CharacterId, ct);
 
-        items = [.. items.DistinctBy(i => i.Id)];
 
-        Db.ChangeTracker.AutoDetectChangesEnabled = false;
-        Db.Items.AddRange(items);
-        Db.SaveChanges();
-        Db.ChangeTracker.AutoDetectChangesEnabled = true;
-        Logger.LogInformation("Loaded {count} items", items.Count);
-    }
-
-    protected override void OnTick(CancellationToken ct) => UpdateWorld();
-
-    private void UpdateWorld()
-    {
-        if (DateTime.UtcNow > _nextTimeUpdate)
+        if (chara != null && chara.Inventory != null)
         {
-            var t = TimeZoneService.GetServerTime();
-
-            var timePacket = new TimeZoneGetResponse(0, (uint)t.Phase, t.Current, t.Max, 0);
-            byte[] data = timePacket.ToBytes();
-
-            foreach (var client in State.AreaClients.Values)
+            uint placeIndex = 0;
+            foreach (var invItem in chara.Inventory)
             {
-                if (client.IsAuthenticated)
-                    _ = client.SendAsync(PacketType.TimeZoneGetResponse, data);
+                var notify = new ItemUpdateListNotify(placeIndex, (uint)invItem.ItemId, (uint)invItem.ItemId);
+                await session.SendAsync(PacketType.ItemUpdateListNotify, notify.ToBytes(), ct);
+                
+                placeIndex++;
             }
-
-            _nextTimeUpdate = DateTime.UtcNow.AddSeconds(1);
         }
     }
 }
